@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeContent Hiring Assessment Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            color: #1e293b;
+        }
+        
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            min-height: 100vh;
+            gap: 0;
+        }
+        
+        .content-area {
+            background: #ffffff;
+            overflow-y: auto;
+        }
+        
+        .sidebar {
+            background: #1e293b;
+            color: white;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            border-left: 1px solid #e2e8f0;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            border-bottom: 3px solid #3b82f6;
+        }
+        
+        .company-logo {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+        
+        .candidate-info {
+            background: #f8fafc;
+            padding: 30px 40px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .candidate-info h3 {
+            margin-bottom: 20px;
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 1.3rem;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .info-item {
+            position: relative;
+        }
+        
+        .info-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+        
+        .info-item input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: white;
+        }
+        
+        .info-item input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .content {
+            padding: 40px;
+            max-width: none;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+        }
+        
+        .section.culture::before {
+            background: linear-gradient(90deg, #ef4444, #f97316);
+        }
+        
+        .section.communication::before {
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+        }
+        
+        .section.content::before {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+        
+        .section.roleplay::before {
+            background: linear-gradient(90deg, #8b5cf6, #7c3aed);
+        }
+        
+        .section.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+            background: #f9fafb;
+        }
+        
+        .section h2 {
+            color: #1e293b;
+            margin-bottom: 8px;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .section-subtitle {
+            color: #64748b;
+            margin-bottom: 24px;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        .subsection {
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .culture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .culture-component {
+            text-align: center;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        
+        .culture-component:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .culture-component h4 {
+            margin-bottom: 8px;
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .culture-weight {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+        
+        .question-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .star-component {
+            text-align: center;
+        }
+        
+        .star-component h4 {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 600;
+        }
+        
+        .score-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            background: white;
+        }
+        
+        .score-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .knowledge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+        
+        .knowledge-question {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        
+        .knowledge-question:hover {
+            border-color: #3b82f6;
+        }
+        
+        .knowledge-question h4 {
+            margin-bottom: 12px;
+            color: #1e293b;
+            font-weight: 600;
+        }
+        
+        .roleplay-components {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar-header {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .sidebar-header h3 {
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+        
+        .sidebar-content {
+            padding: 24px;
+        }
+        
+        .score-section {
+            margin-bottom: 24px;
+        }
+        
+        .score-section h4 {
+            color: #cbd5e1;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 12px 16px;
+            background: #334155;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .score-value {
+            font-weight: 700;
+            color: #06b6d4;
+        }
+        
+        .weighted-score {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+            color: white;
+        }
+        
+        .weighted-score h4 {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .weighted-score .score {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+        
+        .qualification-status {
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .qualified {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+        }
+        
+        .not-qualified {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+        }
+        
+        .pending {
+            background: linear-gradient(135deg, #0891b2, #06b6d4);
+            color: white;
+        }
+        
+        .final-result {
+            background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .final-result h4 {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .final-result .status {
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+        
+        .recommendation {
+            background: #334155;
+            padding: 16px;
+            border-radius: 12px;
+            border-left: 4px solid #06b6d4;
+        }
+        
+        .recommendation h4 {
+            color: #cbd5e1;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .recommendation p {
+            color: #e2e8f0;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        
+        .sharing-section {
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .share-btn, .export-btn, .import-btn {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .share-btn {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+        }
+        
+        .share-btn:hover {
+            background: linear-gradient(135deg, #0891b2, #0e7490);
+            transform: translateY(-1px);
+        }
+        
+        .export-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .export-btn:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-1px);
+        }
+        
+        .import-btn {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+        
+        .import-btn:hover {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            transform: translateY(-1px);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            background: #10b981;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            font-weight: 600;
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .auto-save-indicator {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            text-align: center;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .auto-save-indicator.saving {
+            color: #06b6d4;
+        }
+        
+        .alert {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .question-total {
+            text-align: center;
+            margin-top: 16px;
+            padding: 12px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #334155;
+        }
+        
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+                height: auto;
+                order: -1;
+            }
+            
+            .question-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .culture-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .question-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .culture-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Main Content Area -->
+        <div class="content-area">
+            <div class="header">
+                <div class="company-logo">BeContent</div>
+                <h1>Hiring Assessment Calculator</h1>
+                <p>Social Media Content Creator / Podcast Interviewer Role</p>
+            </div>
+            
+            <div class="candidate-info">
+                <h3>Candidate Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Candidate Name</label>
+                        <input type="text" id="candidateName" placeholder="Enter candidate name">
+                    </div>
+                    <div class="info-item">
+                        <label>Interview Date</label>
+                        <input type="date" id="interviewDate">
+                    </div>
+                    <div class="info-item">
+                        <label>Interviewer Name</label>
+                        <input type="text" id="interviewerName" placeholder="Enter interviewer name">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content">
+                <!-- Section 1: Culture Assessment -->
+                <div class="section culture">
+                    <h2>🏛️ Culture Assessment</h2>
+                    <p class="section-subtitle">Evaluate the candidate's alignment with BeContent's core values. Each value is weighted differently in the final culture score calculation.</p>
+                    
+                    <div class="culture-grid">
+                        <div class="culture-component">
+                            <h4>Kaizen</h4>
+                            <div class="culture-weight">Weight: 15%</div>
+                            <input type="number" class="score-input culture-score" data-component="kaizen" data-weight="15" max="5" min="1" placeholder="1-5">
+                        </div>
+                        <div class="culture-component">
+                            <h4>Creative</h4>
+                            <div class="culture-weight">Weight: 20%</div>
+                            <input type="number" class="score-input culture-score" data-component="creative" data-weight="20" max="5" min="1" placeholder="1-5">
+                        </div>
+                        <div class="culture-component">
+                            <h4>Extraordinary</h4>
+                            <div class="culture-weight">Weight: 30%</div>
+                            <input type="number" class="score-input culture-score" data-component="extraordinary" data-weight="30" max="5" min="1" placeholder="1-5">
+                        </div>
+                        <div class="culture-component">
+                            <h4>Ownership</h4>
+                            <div class="culture-weight">Weight: 30%</div>
+                            <input type="number" class="score-input culture-score" data-component="ownership" data-weight="30" max="5" min="1" placeholder="1-5">
+                        </div>
+                        <div class="culture-component">
+                            <h4>Spiritual</h4>
+                            <div class="culture-weight">Weight: 15%</div>
+                            <input type="number" class="score-input culture-score" data-component="spiritual" data-weight="15" max="5" min="1" placeholder="1-5">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Section 2: STAR Method Assessment -->
+                <div class="section communication">
+                    <h2>📝 Communication Assessment</h2>
+                    <p class="section-subtitle">Evaluate communication skills using the STAR method. Score each component from 1-5 based on the provided rubric.</p>
+                    
+                    <div id="starQuestions">
+                        <!-- Questions 1-5 will be generated here -->
+                    </div>
+                </div>
+                
+                <!-- Section 3: Content Knowledge -->
+                <div class="section content">
+                    <h2>🧠 Content & Viral Knowledge</h2>
+                    <p class="section-subtitle">Assess the candidate's understanding of content creation, viral mechanics, and social media strategy.</p>
+                    
+                    <div class="knowledge-grid" id="knowledgeQuestions">
+                        <!-- 6 knowledge questions will be generated here -->
+                    </div>
+                </div>
+                
+                <!-- Section 4: Role-Play Scenario -->
+                <div class="section roleplay" id="roleplaySection">
+                    <h2>🎭 Role-Play Assessment</h2>
+                    <div class="alert">
+                        ⚠️ <strong>Qualification Required:</strong> Candidate must score 80+ on combined assessment to access role-play.
+                    </div>
+                    <p class="section-subtitle">Evaluate practical interviewing skills through mock podcast interview scenario.</p>
+                    
+                    <div class="roleplay-components">
+                        <div class="subsection">
+                            <h4>Question Quality</h4>
+                            <p style="margin-bottom: 12px; font-size: 0.9rem; color: #64748b;">Ability to create viral-worthy questions (Max: 50 points)</p>
+                            <input type="number" class="score-input" id="questionQuality" max="50" min="0" placeholder="0-50">
+                        </div>
+                        
+                        <div class="subsection">
+                            <h4>Follow-up Skills</h4>
+                            <p style="margin-bottom: 12px; font-size: 0.9rem; color: #64748b;">Probing and follow-up abilities (Max: 30 points)</p>
+                            <input type="number" class="score-input" id="followupSkills" max="30" min="0" placeholder="0-30">
+                        </div>
+                        
+                        <div class="subsection">
+                            <h4>Objection Handling</h4>
+                            <p style="margin-bottom: 12px; font-size: 0.9rem; color: #64748b;">Managing client resistance (Max: 20 points)</p>
+                            <input type="number" class="score-input" id="objectionHandling" max="20" min="0" placeholder="0-20">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>📊 Assessment Results</h3>
+                <p style="opacity: 0.8; font-size: 0.9rem;">Real-time scoring</p>
+            </div>
+            
+            <div class="sidebar-content">
+                <!-- Sharing Controls -->
+                <div class="sharing-section">
+                    <button class="share-btn" onclick="generateShareLink()">📤 Share Assessment</button>
+                    <button class="export-btn" onclick="exportData()">💾 Export Data</button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+                    <button class="import-btn" onclick="document.getElementById('importFile').click()">📁 Import Data</button>
+                </div>
+                
+                <div class="score-section">
+                    <h4>Section Scores</h4>
+                    <div class="score-item">
+                        <span>Culture (40%)</span>
+                        <span class="score-value"><span id="cultureScore">0</span>/100</span>
+                    </div>
+                    <div class="score-item">
+                        <span>Communication (30%)</span>
+                        <span class="score-value"><span id="communicationScore">0</span>/100</span>
+                    </div>
+                    <div class="score-item">
+                        <span>Content (30%)</span>
+                        <span class="score-value"><span id="contentScore">0</span>/100</span>
+                    </div>
+                </div>
+                
+                <div class="weighted-score">
+                    <h4>Combined Score</h4>
+                    <div class="score"><span id="combinedWeightedScore">0</span>/100</div>
+                </div>
+                
+                <div class="qualification-status" id="qualificationStatus">
+                    <span id="qualificationText">Enter scores to check qualification</span>
+                </div>
+                
+                <div class="score-section" id="roleplayScores" style="display: none;">
+                    <h4>Role-Play Results</h4>
+                    <div class="score-item">
+                        <span>Total Score</span>
+                        <span class="score-value"><span id="roleplayTotal">0</span>/100</span>
+                    </div>
+                </div>
+                
+                <div class="final-result">
+                    <h4>Final Decision</h4>
+                    <div class="status" id="finalStatus">Calculating...</div>
+                </div>
+                
+                <div class="recommendation">
+                    <h4>Recommendation</h4>
+                    <p id="recommendationText">Enter scores to see detailed recommendation</p>
+                </div>
+                
+                <div class="auto-save-indicator" id="autoSaveStatus">
+                    💾 Auto-saved locally
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification Toast -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Global state management
+        let assessmentData = {
+            candidateInfo: {},
+            cultureScores: {},
+            starScores: {},
+            knowledgeScores: {},
+            roleplayScores: {}
+        };
+        
+        // Auto-save functionality
+        let autoSaveTimeout;
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        function updateAutoSaveStatus(status) {
+            const indicator = document.getElementById('autoSaveStatus');
+            if (status === 'saving') {
+                indicator.innerHTML = '💾 Saving...';
+                indicator.classList.add('saving');
+            } else {
+                indicator.innerHTML = '💾 Auto-saved locally';
+                indicator.classList.remove('saving');
+            }
+        }
+        
+        function autoSave() {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                updateAutoSaveStatus('saving');
+                collectAllData();
+                localStorage.setItem('becontent_assessment', JSON.stringify(assessmentData));
+                setTimeout(() => updateAutoSaveStatus('saved'), 500);
+            }, 1000);
+        }
+        
+        function collectAllData() {
+            // Collect candidate info
+            assessmentData.candidateInfo = {
+                name: document.getElementById('candidateName').value,
+                date: document.getElementById('interviewDate').value,
+                interviewer: document.getElementById('interviewerName').value
+            };
+            
+            // Collect culture scores
+            assessmentData.cultureScores = {};
+            document.querySelectorAll('.culture-score').forEach(input => {
+                assessmentData.cultureScores[input.dataset.component] = input.value;
+            });
+            
+            // Collect STAR scores
+            assessmentData.starScores = {};
+            document.querySelectorAll('.star-score').forEach(input => {
+                const key = `q${input.dataset.question}_${input.dataset.component}`;
+                assessmentData.starScores[key] = input.value;
+            });
+            
+            // Collect knowledge scores
+            assessmentData.knowledgeScores = {};
+            document.querySelectorAll('.knowledge-score').forEach(input => {
+                assessmentData.knowledgeScores[`q${input.dataset.question}`] = input.value;
+            });
+            
+            // Collect roleplay scores
+            assessmentData.roleplayScores = {
+                questionQuality: document.getElementById('questionQuality').value,
+                followupSkills: document.getElementById('followupSkills').value,
+                objectionHandling: document.getElementById('objectionHandling').value
+            };
+        }
+        
+        function loadAllData(data) {
+            if (!data) return;
+            
+            // Load candidate info
+            if (data.candidateInfo) {
+                document.getElementById('candidateName').value = data.candidateInfo.name || '';
+                document.getElementById('interviewDate').value = data.candidateInfo.date || '';
+                document.getElementById('interviewerName').value = data.candidateInfo.interviewer || '';
+            }
+            
+            // Load culture scores
+            if (data.cultureScores) {
+                Object.keys(data.cultureScores).forEach(component => {
+                    const input = document.querySelector(`[data-component="${component}"]`);
+                    if (input) input.value = data.cultureScores[component];
+                });
+            }
+            
+            // Load STAR scores
+            if (data.starScores) {
+                Object.keys(data.starScores).forEach(key => {
+                    const [question, component] = key.split('_');
+                    const questionNum = question.replace('q', '');
+                    const input = document.querySelector(`[data-question="${questionNum}"][data-component="${component}"]`);
+                    if (input) input.value = data.starScores[key];
+                });
+            }
+            
+            // Load knowledge scores
+            if (data.knowledgeScores) {
+                Object.keys(data.knowledgeScores).forEach(key => {
+                    const questionNum = key.replace('q', '');
+                    const input = document.querySelector(`.knowledge-score[data-question="${questionNum}"]`);
+                    if (input) input.value = data.knowledgeScores[key];
+                });
+            }
+            
+            // Load roleplay scores
+            if (data.roleplayScores) {
+                document.getElementById('questionQuality').value = data.roleplayScores.questionQuality || '';
+                document.getElementById('followupSkills').value = data.roleplayScores.followupSkills || '';
+                document.getElementById('objectionHandling').value = data.roleplayScores.objectionHandling || '';
+            }
+            
+            calculateScores();
+        }
+        
+        function loadFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const encodedData = urlParams.get('data');
+            
+            if (encodedData) {
+                try {
+                    const decodedData = JSON.parse(atob(encodedData));
+                    loadAllData(decodedData);
+                    showNotification('Assessment loaded from shared link!');
+                    // Clean URL after loading
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } catch (error) {
+                    showNotification('Error loading shared link data', 'error');
+                }
+            }
+        }
+        
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('becontent_assessment');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    loadAllData(data);
+                } catch (error) {
+                    console.error('Error loading saved data:', error);
+                }
+            }
+        }
+        
+        function generateShareLink() {
+            collectAllData();
+            const encodedData = btoa(JSON.stringify(assessmentData));
+            const shareUrl = `${window.location.origin}${window.location.pathname}?data=${encodedData}`;
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                showNotification('Share link copied to clipboard! 📋');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = shareUrl;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showNotification('Share link copied to clipboard! 📋');
+            });
+        }
+        
+        function exportData() {
+            collectAllData();
+            const candidateName = assessmentData.candidateInfo.name || 'candidate';
+            const filename = `BeContent_Assessment_${candidateName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
+            
+            const dataStr = JSON.stringify(assessmentData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = filename;
+            link.click();
+            
+            showNotification('Assessment data exported! 💾');
+        }
+        
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    loadAllData(data);
+                    showNotification('Assessment data imported successfully! 📁');
+                } catch (error) {
+                    showNotification('Error importing file. Please check the format.', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        // Generate STAR Method Questions
+        function generateStarQuestions() {
+            const container = document.getElementById('starQuestions');
+            for (let i = 1; i <= 5; i++) {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'subsection';
+                questionDiv.innerHTML = `
+                    <h3>Question ${i}</h3>
+                    <div class="question-grid">
+                        <div class="star-component">
+                            <h4>Situation</h4>
+                            <input type="number" class="score-input star-score" data-question="${i}" data-component="situation" max="5" min="1" placeholder="1-5">
+                        </div>
+                        <div class="star-component">
+                            <h4>Task</h4>
+                            <input type="number" class="score-input star-score" data-question="${i}" data-component="task" max="5" min="1" placeholder="1-5">
+                        </div>
+                        <div class="star-component">
+                            <h4>Action</h4>
+                            <input type="number" class="score-input star-score" data-question="${i}" data-component="action" max="5" min="1" placeholder="1-5">
+                        </div>
+                        <div class="star-component">
+                            <h4>Result</h4>
+                            <input type="number" class="score-input star-score" data-question="${i}" data-component="result" max="5" min="1" placeholder="1-5">
+                        </div>
+                    </div>
+                    <div class="question-total">
+                        <strong>Question ${i} Total: <span id="q${i}Total">0</span>/20</strong>
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+            }
+        }
+        
+        // Generate Knowledge Questions
+        function generateKnowledgeQuestions() {
+            const container = document.getElementById('knowledgeQuestions');
+            for (let i = 1; i <= 6; i++) {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'knowledge-question';
+                questionDiv.innerHTML = `
+                    <h4>Knowledge Question ${i}</h4>
+                    <input type="number" class="score-input knowledge-score" data-question="${i}" max="5" min="0" placeholder="0-5">
+                `;
+                container.appendChild(questionDiv);
+            }
+        }
+        
+        // Calculate Culture Score with weighted components
+        function calculateCultureScore() {
+            let weightedSum = 0;
+            let totalWeight = 0;
+            
+            const cultureScores = document.querySelectorAll('.culture-score');
+            cultureScores.forEach(input => {
+                const score = parseInt(input.value) || 0;
+                const weight = parseInt(input.dataset.weight);
+                weightedSum += (score * weight);
+                totalWeight += weight;
+            });
+            
+            // Note: totalWeight is 110%, so we normalize to 100
+            const normalizedScore = totalWeight > 0 ? (weightedSum / totalWeight) * 20 : 0; // *20 to scale to 100
+            return Math.round(normalizedScore);
+        }
+        
+        // Calculate scores
+        function calculateScores() {
+            // Calculate Culture score (weighted)
+            const cultureScore = calculateCultureScore();
+            
+            // Calculate STAR Method total
+            let starTotal = 0;
+            const starScores = document.querySelectorAll('.star-score');
+            starScores.forEach(input => {
+                const value = parseInt(input.value) || 0;
+                starTotal += value;
+            });
+            
+            // Update individual question totals
+            for (let i = 1; i <= 5; i++) {
+                let questionTotal = 0;
+                const questionInputs = document.querySelectorAll(`[data-question="${i}"].star-score`);
+                questionInputs.forEach(input => {
+                    questionTotal += parseInt(input.value) || 0;
+                });
+                document.getElementById(`q${i}Total`).textContent = questionTotal;
+            }
+            
+            // Calculate Knowledge total
+            let knowledgeTotal = 0;
+            const knowledgeScores = document.querySelectorAll('.knowledge-score');
+            knowledgeScores.forEach(input => {
+                knowledgeTotal += parseInt(input.value) || 0;
+            });
+            
+            // Convert to percentages (100-point scale)
+            const culturePercentage = cultureScore;
+            const communicationPercentage = starTotal; // Already out of 100 (5 questions × 4 components × 5 points)
+            const contentPercentage = Math.round((knowledgeTotal / 30) * 100); // Convert 30 points to 100
+            
+            // Calculate weighted combined score
+            const combinedWeightedScore = Math.round(
+                (culturePercentage * 0.4) + 
+                (communicationPercentage * 0.3) + 
+                (contentPercentage * 0.3)
+            );
+            
+            // Update display
+            document.getElementById('cultureScore').textContent = culturePercentage;
+            document.getElementById('communicationScore').textContent = communicationPercentage;
+            document.getElementById('contentScore').textContent = contentPercentage;
+            document.getElementById('combinedWeightedScore').textContent = combinedWeightedScore;
+            
+            // Check qualification for role-play
+            const isQualified = combinedWeightedScore >= 80;
+            updateQualificationStatus(isQualified, combinedWeightedScore);
+            
+            // Handle role-play section
+            const roleplaySection = document.getElementById('roleplaySection');
+            if (isQualified) {
+                roleplaySection.classList.remove('disabled');
+                calculateRolePlayScore();
+            } else {
+                roleplaySection.classList.add('disabled');
+                document.getElementById('roleplayScores').style.display = 'none';
+                generateRecommendation(false, combinedWeightedScore, 0);
+            }
+        }
+        
+        // Calculate Role-Play Score
+        function calculateRolePlayScore() {
+            const questionQuality = parseInt(document.getElementById('questionQuality').value) || 0;
+            const followupSkills = parseInt(document.getElementById('followupSkills').value) || 0;
+            const objectionHandling = parseInt(document.getElementById('objectionHandling').value) || 0;
+            const roleplayTotal = questionQuality + followupSkills + objectionHandling;
+            
+            document.getElementById('roleplayTotal').textContent = roleplayTotal;
+            document.getElementById('roleplayScores').style.display = 'block';
+            
+            const combinedScore = parseInt(document.getElementById('combinedWeightedScore').textContent);
+            generateRecommendation(true, combinedScore, roleplayTotal);
+        }
+        
+        // Update qualification status
+        function updateQualificationStatus(isQualified, score) {
+            const statusDiv = document.getElementById('qualificationStatus');
+            const textDiv = document.getElementById('qualificationText');
+            
+            if (isQualified) {
+                statusDiv.className = 'qualification-status qualified';
+                textDiv.textContent = `✅ QUALIFIED (${score}/100)`;
+            } else {
+                statusDiv.className = 'qualification-status not-qualified';
+                textDiv.textContent = `❌ NOT QUALIFIED (${score}/100)`;
+            }
+        }
+        
+        // Generate recommendation based on scores
+        function generateRecommendation(qualified, combinedScore, roleplayScore) {
+            const textDiv = document.getElementById('recommendationText');
+            const finalStatusDiv = document.getElementById('finalStatus');
+            
+            let recommendation = '';
+            let finalStatus = '';
+            
+            if (!qualified) {
+                recommendation = `Score: ${combinedScore}/100. Did not meet the 80+ threshold for role-play. ${combinedScore < 60 ? 'Significant development needed.' : 'Close to qualification - consider for future opportunities.'}`;
+                finalStatus = 'NOT QUALIFIED';
+            } else if (roleplayScore >= 80) {
+                recommendation = `🎉 Outstanding performance! Combined: ${combinedScore}/100 ✅, Role-play: ${roleplayScore}/100 ✅. Strong cultural fit with excellent practical skills.`;
+                finalStatus = 'HIRED ✅';
+            } else if (roleplayScore > 0) {
+                recommendation = `Combined: ${combinedScore}/100 ✅, Role-play: ${roleplayScore}/100 ❌. Strong foundation but needs practical interview skill development.`;
+                finalStatus = 'NOT HIRED';
+            } else {
+                recommendation = `Qualified with score: ${combinedScore}/100 ✅. Please complete role-play assessment.`;
+                finalStatus = 'PENDING ROLE-PLAY';
+            }
+            
+            textDiv.textContent = recommendation;
+            finalStatusDiv.textContent = finalStatus;
+        }
+        
+        // Initialize the calculator
+        function init() {
+            generateStarQuestions();
+            generateKnowledgeQuestions();
+            
+            // Load data from URL first (for shared links), then localStorage
+            loadFromURL();
+            if (!window.location.search) {
+                loadFromLocalStorage();
+            }
+            
+            // Add event listeners for real-time calculation and auto-save
+            document.addEventListener('input', (e) => {
+                calculateScores();
+                autoSave();
+            });
+            
+            // Initial calculation
+            calculateScores();
+        }
+        
+        // Start the app
+        init();
+    </script>
+</body>
+</html>
