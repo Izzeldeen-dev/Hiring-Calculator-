@@ -404,6 +404,196 @@
             gap: 20px;
         }
         
+        .knowledge-selector {
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .knowledge-selector h3 {
+            color: #1e293b;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        
+        .question-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .question-options label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        
+        .question-options label:hover {
+            border-color: #3b82f6;
+            background: #f8f9ff;
+        }
+        
+        .question-options label.selected {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            color: #1e40af;
+        }
+        
+        .question-checkbox {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .selection-counter {
+            text-align: center;
+            font-weight: 600;
+            color: #374151;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .knowledge-detailed {
+            margin-top: 24px;
+        }
+        
+        .knowledge-question-detail {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            transition: all 0.2s ease;
+        }
+        
+        .knowledge-question-detail:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+        
+        .knowledge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        
+        .knowledge-header h4 {
+            color: #1e293b;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .knowledge-prompt {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .knowledge-prompt strong {
+            color: #1e293b;
+        }
+        
+        .scoring-criteria-knowledge {
+            margin-bottom: 20px;
+        }
+        
+        .criteria-section {
+            margin-bottom: 16px;
+        }
+        
+        .criteria-section h5 {
+            color: #059669;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .criteria-section.wrong h5 {
+            color: #dc2626;
+        }
+        
+        .criteria-list {
+            background: #f0fdf4;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border-left: 4px solid #059669;
+        }
+        
+        .criteria-list.wrong {
+            background: #fef2f2;
+            border-left-color: #dc2626;
+        }
+        
+        .criteria-list ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .criteria-list li {
+            color: #374151;
+            line-height: 1.5;
+            margin-bottom: 4px;
+        }
+        
+        .knowledge-score-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .knowledge-score-selector label {
+            font-weight: 600;
+            color: #374151;
+            min-width: 50px;
+        }
+        
+        .knowledge-score-select {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: white;
+            color: #1e293b;
+            transition: all 0.2s ease;
+        }
+        
+        .knowledge-score-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .knowledge-total {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-top: 24px;
+        }
+        
         .knowledge-question {
             background: white;
             padding: 24px;
@@ -631,6 +821,14 @@
             opacity: 1;
         }
         
+        .notification.warning {
+            background: #f59e0b;
+        }
+        
+        .notification.error {
+            background: #dc2626;
+        }
+        
         .auto-save-indicator {
             font-size: 0.8rem;
             color: #94a3b8;
@@ -714,6 +912,25 @@
             }
             
             .culture-score-select {
+                width: 100%;
+            }
+            
+            .question-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .knowledge-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .knowledge-score-selector {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .knowledge-score-select {
                 width: 100%;
             }
         }
@@ -946,10 +1163,38 @@
                 <!-- Section 3: Content Knowledge -->
                 <div class="section content">
                     <h2>🧠 Content & Viral Knowledge</h2>
-                    <p class="section-subtitle">Assess the candidate's understanding of content creation, viral mechanics, and social media strategy.</p>
+                    <p class="section-subtitle">Select 6 questions from the 12 available options and score based on detailed criteria. Each question is worth 5 points for correct answers, 0 points for incorrect answers.</p>
                     
-                    <div class="knowledge-grid" id="knowledgeQuestions">
-                        <!-- 6 knowledge questions will be generated here -->
+                    <div class="knowledge-selector">
+                        <h3>Select 6 Questions to Ask:</h3>
+                        <div class="question-options">
+                            <label><input type="checkbox" class="question-checkbox" data-question="1"> Q1: Content Repurposing</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="2"> Q2: Hook Creation</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="3"> Q3: Shareable Short-form Video</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="4"> Q4: Why People Scroll Past</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="5"> Q5: Content That Gets Saves</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="6"> Q6: Increase Video Retention</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="7"> Q7: Videos Going Viral Later</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="8"> Q8: Series-based Content Benefits</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="9"> Q9: Testing Hooks</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="10"> Q10: Role of Captions</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="11"> Q11: Best Viral Hook</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="12"> Q12: Most Important Instagram Metric</label>
+                        </div>
+                        <div class="selection-counter">
+                            Selected: <span id="selectedCount">0</span>/6 questions
+                        </div>
+                    </div>
+                    
+                    <div class="knowledge-detailed" id="knowledgeQuestions">
+                        <!-- Selected questions will appear here -->
+                    </div>
+                    
+                    <div class="knowledge-total">
+                        <strong>Content Knowledge Total: <span id="knowledgeTotalScore">0</span>/30</strong>
+                        <div style="font-size: 0.9rem; color: #64748b; margin-top: 5px;">
+                            Percentage: <span id="knowledgePercentage">0</span>%
+                        </div>
                     </div>
                 </div>
                 
@@ -1060,7 +1305,181 @@
             cultureScores: {},
             starScores: {},
             knowledgeScores: {},
-            roleplayScores: {}
+            roleplayScores: {},
+            selectedQuestions: []
+        };
+        
+        // Knowledge questions database
+        const knowledgeQuestions = {
+            1: {
+                title: "Content Repurposing",
+                question: "What's the best segment from a podcast to extract as a reel?",
+                correctAnswers: [
+                    "Golden moments: 'Aha moments,' key insights, or surprising facts",
+                    "Controversial statements or strong opinions",
+                    "Actionable tips that can stand alone",
+                    "Emotional peaks (funny, shocking, inspiring moments)",
+                    "Client transformations or success stories"
+                ],
+                wrongAnswers: [
+                    "'The beginning' or 'the end'",
+                    "'Whatever looks good'",
+                    "'The longest part'",
+                    "Cannot give a specific answer"
+                ]
+            },
+            2: {
+                title: "Hook Creation",
+                question: "If your client is a [fitness/business/life] coach, provide examples of compelling hooks for their content.",
+                correctAnswers: [
+                    "Question hooks: 'Are you making this mistake that's killing your results?'",
+                    "Controversial statements: 'Everyone tells you to eat 6 meals a day. They're wrong.'",
+                    "Numbers/Lists: '3 things I wish I knew before starting my business'",
+                    "Personal stories: 'I lost 50 clients in one day. Here's what I learned...'",
+                    "Curiosity gaps: 'The one thing every successful person does (but won't admit)'"
+                ],
+                wrongAnswers: [
+                    "Generic statements like 'Here's some fitness tips'",
+                    "No specific examples given",
+                    "Copies common phrases without understanding"
+                ]
+            },
+            3: {
+                title: "Shareable Short-form Video",
+                question: "What makes a shareable short-form video?",
+                correctAnswers: [
+                    "Relatable emotion (anger, humor, relief)",
+                    "Value-packed insight",
+                    "Strong 'that's so me' or 'I need to send this' factor",
+                    "Simple + bold idea"
+                ],
+                wrongAnswers: [
+                    "'It just works'",
+                    "No emotion involved",
+                    "Just says 'good content'"
+                ]
+            },
+            4: {
+                title: "Why People Scroll Past",
+                question: "Why do people scroll past your video fast?",
+                correctAnswers: [
+                    "Boring or unclear intro",
+                    "No curiosity trigger",
+                    "Weak first frame",
+                    "Not audience-relevant"
+                ],
+                wrongAnswers: [
+                    "'They're not interested'",
+                    "'They don't like me'",
+                    "No tactical feedback"
+                ]
+            },
+            5: {
+                title: "Content That Gets Saves",
+                question: "What kind of content gets the most saves?",
+                correctAnswers: [
+                    "Valuable how-to",
+                    "Lists, frameworks, or tools",
+                    "Downloadable or applicable info",
+                    "Inspirational quotes/tips"
+                ],
+                wrongAnswers: [
+                    "'Anything good'",
+                    "Talks about likes or comments instead",
+                    "Vague praise"
+                ]
+            },
+            6: {
+                title: "Increase Video Retention",
+                question: "How can you increase retention on a 30s video?",
+                correctAnswers: [
+                    "Build curiosity",
+                    "Quick cuts",
+                    "Motion or storytelling",
+                    "Tease/payoff structure"
+                ],
+                wrongAnswers: [
+                    "'Just make it good'",
+                    "Repetitive clips",
+                    "No editing tactics"
+                ]
+            },
+            7: {
+                title: "Videos Going Viral Later",
+                question: "Why do some videos go viral days later?",
+                correctAnswers: [
+                    "Algorithm tests in waves",
+                    "Shares increase over time",
+                    "Later audience resonated more"
+                ],
+                wrongAnswers: [
+                    "No explanation",
+                    "Blames bugs or randomness"
+                ]
+            },
+            8: {
+                title: "Series-based Content Benefits",
+                question: "What's the benefit of series-based content?",
+                correctAnswers: [
+                    "Builds anticipation",
+                    "Increases profile visits",
+                    "Increases average watch time per viewer",
+                    "Boosts return viewers"
+                ],
+                wrongAnswers: [
+                    "'It's just more content'",
+                    "Doesn't understand structure",
+                    "No clear advantage"
+                ]
+            },
+            9: {
+                title: "Testing Hooks",
+                question: "What's one way to test a hook before posting?",
+                correctAnswers: [
+                    "Trial Reels Option"
+                ],
+                wrongAnswers: [
+                    "'You'll feel it'",
+                    "'Just post and learn'",
+                    "No testing mentioned"
+                ]
+            },
+            10: {
+                title: "Role of Captions",
+                question: "What's the role of captions in the video?",
+                correctAnswers: [
+                    "80–90% of people watch without sound",
+                    "Captions improve retention",
+                    "Helps comprehension",
+                    "Increases accessibility"
+                ],
+                wrongAnswers: [
+                    "'They look nice'",
+                    "Ignores silent viewing",
+                    "Doesn't mention user behavior"
+                ]
+            },
+            11: {
+                title: "Best Viral Hook",
+                question: "What hook has the highest chance of going viral?",
+                options: [
+                    "How to lose 3 kilos without any diet",
+                    "5 ways to lose weight",
+                    "Why drinking 8 cups of water is a must"
+                ],
+                correctAnswer: "How to lose 3 kilos without any diet",
+                wrongAnswers: [
+                    "5 ways to lose weight",
+                    "Why drinking 8 cups of water is a must"
+                ]
+            },
+            12: {
+                title: "Most Important Instagram Metric",
+                question: "What's the most important metric in Instagram?",
+                options: ["Likes", "Comments", "Saved", "Shares"],
+                correctAnswer: "Shares",
+                wrongAnswers: ["Likes", "Comments", "Saved"]
+            }
         };
         
         // Auto-save functionality
@@ -1106,7 +1525,14 @@
                 interviewer: document.getElementById('interviewerName').value
             };
             
-            // Collect culture scores (now using selects)
+            // Collect selected questions
+            const selectedQuestions = [];
+            document.querySelectorAll('.question-checkbox:checked').forEach(checkbox => {
+                selectedQuestions.push(parseInt(checkbox.dataset.question));
+            });
+            assessmentData.selectedQuestions = selectedQuestions;
+            
+            // Collect culture scores (using selects)
             assessmentData.cultureScores = {};
             document.querySelectorAll('.culture-score-select').forEach(select => {
                 assessmentData.cultureScores[select.dataset.component] = select.value;
@@ -1119,10 +1545,10 @@
                 assessmentData.starScores[key] = input.value;
             });
             
-            // Collect knowledge scores
+            // Collect knowledge scores (new system)
             assessmentData.knowledgeScores = {};
-            document.querySelectorAll('.knowledge-score').forEach(input => {
-                assessmentData.knowledgeScores[`q${input.dataset.question}`] = input.value;
+            document.querySelectorAll('.knowledge-score-select').forEach(select => {
+                assessmentData.knowledgeScores[`q${select.dataset.question}`] = select.value;
             });
             
             // Collect roleplay scores
@@ -1143,7 +1569,21 @@
                 document.getElementById('interviewerName').value = data.candidateInfo.interviewer || '';
             }
             
-            // Load culture scores (now using selects)
+            // Load selected questions
+            if (data.selectedQuestions) {
+                assessmentData.selectedQuestions = data.selectedQuestions;
+                data.selectedQuestions.forEach(questionId => {
+                    const checkbox = document.querySelector(`[data-question="${questionId}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        checkbox.closest('label').classList.add('selected');
+                    }
+                });
+                document.getElementById('selectedCount').textContent = data.selectedQuestions.length;
+                generateKnowledgeQuestions();
+            }
+            
+            // Load culture scores (using selects)
             if (data.cultureScores) {
                 Object.keys(data.cultureScores).forEach(component => {
                     const select = document.querySelector(`[data-component="${component}"]`);
@@ -1161,13 +1601,16 @@
                 });
             }
             
-            // Load knowledge scores
+            // Load knowledge scores (new system) - need to wait for questions to generate
             if (data.knowledgeScores) {
-                Object.keys(data.knowledgeScores).forEach(key => {
-                    const questionNum = key.replace('q', '');
-                    const input = document.querySelector(`.knowledge-score[data-question="${questionNum}"]`);
-                    if (input) input.value = data.knowledgeScores[key];
-                });
+                setTimeout(() => {
+                    Object.keys(data.knowledgeScores).forEach(key => {
+                        const questionNum = key.replace('q', '');
+                        const select = document.querySelector(`.knowledge-score-select[data-question="${questionNum}"]`);
+                        if (select) select.value = data.knowledgeScores[key];
+                    });
+                    calculateScores();
+                }, 100);
             }
             
             // Load roleplay scores
@@ -1296,18 +1739,136 @@
             }
         }
         
-        // Generate Knowledge Questions
+        // Generate Knowledge Questions based on selection
         function generateKnowledgeQuestions() {
             const container = document.getElementById('knowledgeQuestions');
-            for (let i = 1; i <= 6; i++) {
+            container.innerHTML = '';
+            
+            const selectedQuestions = assessmentData.selectedQuestions || [];
+            
+            selectedQuestions.forEach(questionId => {
+                const questionData = knowledgeQuestions[questionId];
+                if (!questionData) return;
+                
                 const questionDiv = document.createElement('div');
-                questionDiv.className = 'knowledge-question';
+                questionDiv.className = 'knowledge-question-detail';
+                
+                let criteriaHTML = '';
+                
+                if (questionData.options) {
+                    // Multiple choice question
+                    criteriaHTML = `
+                        <div class="criteria-section">
+                            <h5>✅ Correct Answer (5 points):</h5>
+                            <div class="criteria-list">
+                                <ul><li><strong>${questionData.correctAnswer}</strong></li></ul>
+                            </div>
+                        </div>
+                        <div class="criteria-section wrong">
+                            <h5>❌ Wrong Answers (0 points):</h5>
+                            <div class="criteria-list wrong">
+                                <ul>
+                                    ${questionData.wrongAnswers.map(answer => `<li>${answer}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Open-ended question
+                    criteriaHTML = `
+                        <div class="criteria-section">
+                            <h5>✅ Must Mention (5 points):</h5>
+                            <div class="criteria-list">
+                                <ul>
+                                    ${questionData.correctAnswers.map(answer => `<li>${answer}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="criteria-section wrong">
+                            <h5>❌ Wrong Answers (0 points):</h5>
+                            <div class="criteria-list wrong">
+                                <ul>
+                                    ${questionData.wrongAnswers.map(answer => `<li>${answer}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                }
+                
                 questionDiv.innerHTML = `
-                    <h4>Knowledge Question ${i}</h4>
-                    <input type="number" class="score-input knowledge-score" data-question="${i}" max="5" min="0" placeholder="0-5">
+                    <div class="knowledge-header">
+                        <h4>Q${questionId}: ${questionData.title}</h4>
+                    </div>
+                    <div class="knowledge-prompt">
+                        <strong>Question:</strong> "${questionData.question}"
+                    </div>
+                    <div class="scoring-criteria-knowledge">
+                        ${criteriaHTML}
+                    </div>
+                    <div class="knowledge-score-selector">
+                        <label>Score:</label>
+                        <select class="knowledge-score-select" data-question="${questionId}">
+                            <option value="">Select Score</option>
+                            <option value="0">0 - Incorrect/Poor Answer</option>
+                            <option value="5">5 - Correct Answer</option>
+                        </select>
+                    </div>
                 `;
+                
                 container.appendChild(questionDiv);
+            });
+            
+            updateKnowledgeScore();
+        }
+        
+        function handleQuestionSelection() {
+            const checkboxes = document.querySelectorAll('.question-checkbox');
+            const selectedQuestions = [];
+            
+            checkboxes.forEach(checkbox => {
+                const label = checkbox.closest('label');
+                if (checkbox.checked) {
+                    selectedQuestions.push(parseInt(checkbox.dataset.question));
+                    label.classList.add('selected');
+                } else {
+                    label.classList.remove('selected');
+                }
+            });
+            
+            // Limit to 6 questions
+            if (selectedQuestions.length > 6) {
+                // Uncheck the last selected
+                const lastCheckbox = Array.from(checkboxes).find(cb => 
+                    parseInt(cb.dataset.question) === selectedQuestions[selectedQuestions.length - 1]
+                );
+                lastCheckbox.checked = false;
+                lastCheckbox.closest('label').classList.remove('selected');
+                selectedQuestions.pop();
+                showNotification('Maximum 6 questions allowed', 'warning');
             }
+            
+            assessmentData.selectedQuestions = selectedQuestions;
+            document.getElementById('selectedCount').textContent = selectedQuestions.length;
+            
+            generateKnowledgeQuestions();
+        }
+        
+        function updateKnowledgeScore() {
+            let totalScore = 0;
+            const maxPossibleScore = assessmentData.selectedQuestions.length * 5;
+            
+            const knowledgeSelects = document.querySelectorAll('.knowledge-score-select');
+            knowledgeSelects.forEach(select => {
+                const score = parseInt(select.value) || 0;
+                totalScore += score;
+            });
+            
+            const percentage = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0;
+            
+            document.getElementById('knowledgeTotalScore').textContent = `${totalScore}/${maxPossibleScore}`;
+            document.getElementById('knowledgePercentage').textContent = percentage;
+            
+            return percentage;
         }
         
         // Calculate Culture Score with new detailed scoring system
@@ -1351,20 +1912,17 @@
                 questionInputs.forEach(input => {
                     questionTotal += parseInt(input.value) || 0;
                 });
-                document.getElementById(`q${i}Total`).textContent = questionTotal;
+                const totalElement = document.getElementById(`q${i}Total`);
+                if (totalElement) totalElement.textContent = questionTotal;
             }
             
-            // Calculate Knowledge total
-            let knowledgeTotal = 0;
-            const knowledgeScores = document.querySelectorAll('.knowledge-score');
-            knowledgeScores.forEach(input => {
-                knowledgeTotal += parseInt(input.value) || 0;
-            });
+            // Calculate Knowledge total (new system)
+            const knowledgePercentage = updateKnowledgeScore();
             
             // Convert to percentages (100-point scale)
             const culturePercentage = cultureScore;
             const communicationPercentage = starTotal; // Already out of 100 (5 questions × 4 components × 5 points)
-            const contentPercentage = Math.round((knowledgeTotal / 30) * 100); // Convert 30 points to 100
+            const contentPercentage = knowledgePercentage; // Already calculated as percentage
             
             // Calculate weighted combined score
             const combinedWeightedScore = Math.round(
@@ -1452,7 +2010,12 @@
         // Initialize the calculator
         function init() {
             generateStarQuestions();
-            generateKnowledgeQuestions();
+            
+            // Set up knowledge question selection
+            const checkboxes = document.querySelectorAll('.question-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', handleQuestionSelection);
+            });
             
             // Load data from URL first (for shared links), then localStorage
             loadFromURL();
@@ -1468,8 +2031,11 @@
             
             // Add change event listener for select elements
             document.addEventListener('change', (e) => {
-                calculateScores();
-                autoSave();
+                if (e.target.classList.contains('knowledge-score-select') || 
+                    e.target.classList.contains('culture-score-select')) {
+                    calculateScores();
+                    autoSave();
+                }
             });
             
             // Initial calculation
