@@ -193,6 +193,146 @@
             gap: 20px;
         }
         
+        .culture-detailed {
+            max-width: none;
+        }
+        
+        .culture-question {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            transition: all 0.2s ease;
+        }
+        
+        .culture-question:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+        
+        .culture-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        
+        .culture-header h3 {
+            color: #1e293b;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .culture-weight {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .culture-prompt {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .culture-prompt strong {
+            color: #1e293b;
+        }
+        
+        .scoring-criteria {
+            margin-bottom: 20px;
+        }
+        
+        .criteria-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .score-label {
+            background: #1e293b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            min-width: 32px;
+            text-align: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .criteria-text {
+            color: #374151;
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+        
+        .criteria-text em {
+            color: #6b7280;
+            font-style: italic;
+            display: block;
+            margin-top: 4px;
+            font-size: 0.85rem;
+        }
+        
+        .score-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .score-selector label {
+            font-weight: 600;
+            color: #374151;
+            min-width: 50px;
+        }
+        
+        .culture-score-select {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: white;
+            color: #1e293b;
+            transition: all 0.2s ease;
+        }
+        
+        .culture-score-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .culture-score-select option {
+            padding: 8px;
+        }
+        
+        .culture-total {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-top: 24px;
+        }
+        
         .culture-component {
             text-align: center;
             background: white;
@@ -543,10 +683,6 @@
             .question-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
-            
-            .culture-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
         }
         
         @media (max-width: 768px) {
@@ -562,12 +698,23 @@
                 grid-template-columns: 1fr;
             }
             
-            .culture-grid {
+            .info-grid {
                 grid-template-columns: 1fr;
             }
             
-            .info-grid {
-                grid-template-columns: 1fr;
+            .culture-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .score-selector {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .culture-score-select {
+                width: 100%;
             }
         }
     </style>
@@ -604,33 +751,184 @@
                 <!-- Section 1: Culture Assessment -->
                 <div class="section culture">
                     <h2>🏛️ Culture Assessment</h2>
-                    <p class="section-subtitle">Evaluate the candidate's alignment with BeContent's core values. Each value is weighted differently in the final culture score calculation.</p>
+                    <p class="section-subtitle">Evaluate the candidate's alignment with BeContent's core values using specific questions and scoring criteria.</p>
                     
-                    <div class="culture-grid">
-                        <div class="culture-component">
-                            <h4>Kaizen</h4>
-                            <div class="culture-weight">Weight: 15%</div>
-                            <input type="number" class="score-input culture-score" data-component="kaizen" data-weight="15" max="5" min="1" placeholder="1-5">
+                    <div class="culture-detailed">
+                        <!-- Extraordinary -->
+                        <div class="culture-question">
+                            <div class="culture-header">
+                                <h3>🌟 1. Extraordinary (30%)</h3>
+                                <div class="culture-weight">Weight: 30%</div>
+                            </div>
+                            <div class="culture-prompt">
+                                <strong>Question:</strong> "Do you have a clear vision for your future?"
+                            </div>
+                            <div class="scoring-criteria">
+                                <div class="criteria-item">
+                                    <span class="score-label">0</span>
+                                    <span class="criteria-text">NO CLEAR vision</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">15</span>
+                                    <span class="criteria-text">CLEAR BUT NORMAL vision</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">30</span>
+                                    <span class="criteria-text">VERY ASPIRING + CLEAR vision</span>
+                                </div>
+                            </div>
+                            <div class="score-selector">
+                                <label>Score:</label>
+                                <select class="culture-score-select" data-component="extraordinary" data-weight="30">
+                                    <option value="">Select Score</option>
+                                    <option value="0">0 - No clear vision</option>
+                                    <option value="15">15 - Clear but normal</option>
+                                    <option value="30">30 - Very aspiring + clear</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="culture-component">
-                            <h4>Creative</h4>
-                            <div class="culture-weight">Weight: 20%</div>
-                            <input type="number" class="score-input culture-score" data-component="creative" data-weight="20" max="5" min="1" placeholder="1-5">
+
+                        <!-- Creative -->
+                        <div class="culture-question">
+                            <div class="culture-header">
+                                <h3>🎨 2. Creative (20%)</h3>
+                                <div class="culture-weight">Weight: 20%</div>
+                            </div>
+                            <div class="culture-prompt">
+                                <strong>Question:</strong> "Give me 10 options to use a fine packet?"
+                            </div>
+                            <div class="scoring-criteria">
+                                <div class="criteria-item">
+                                    <span class="score-label">0</span>
+                                    <span class="criteria-text">Cannot think of creative uses or gives generic responses</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">10</span>
+                                    <span class="criteria-text">Provides 5-7 decent options with some creativity</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">20</span>
+                                    <span class="criteria-text">Provides 10+ highly creative and diverse options</span>
+                                </div>
+                            </div>
+                            <div class="score-selector">
+                                <label>Score:</label>
+                                <select class="culture-score-select" data-component="creative" data-weight="20">
+                                    <option value="">Select Score</option>
+                                    <option value="0">0 - No creativity/generic responses</option>
+                                    <option value="10">10 - 5-7 decent creative options</option>
+                                    <option value="20">20 - 10+ highly creative options</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="culture-component">
-                            <h4>Extraordinary</h4>
-                            <div class="culture-weight">Weight: 30%</div>
-                            <input type="number" class="score-input culture-score" data-component="extraordinary" data-weight="30" max="5" min="1" placeholder="1-5">
+
+                        <!-- Kaizen -->
+                        <div class="culture-question">
+                            <div class="culture-header">
+                                <h3>📈 3. Kaizen - Continuous Improvement (15%)</h3>
+                                <div class="culture-weight">Weight: 15%</div>
+                            </div>
+                            <div class="culture-prompt">
+                                <strong>Question:</strong> "Tell me about how you approach personal improvement."
+                            </div>
+                            <div class="scoring-criteria">
+                                <div class="criteria-item">
+                                    <span class="score-label">0</span>
+                                    <span class="criteria-text">No effort or awareness of improvement<br><em>Example: "I usually just follow the same routine."</em></span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">10</span>
+                                    <span class="criteria-text">One big change only, not consistent<br><em>Example: "I changed my whole workflow once, and it helped."</em></span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">15</span>
+                                    <span class="criteria-text">Small, ongoing improvements over time<br><em>Example: "I started planning my day every morning, then added weekly reflections to keep improving."</em></span>
+                                </div>
+                            </div>
+                            <div class="score-selector">
+                                <label>Score:</label>
+                                <select class="culture-score-select" data-component="kaizen" data-weight="15">
+                                    <option value="">Select Score</option>
+                                    <option value="0">0 - No improvement awareness</option>
+                                    <option value="10">10 - One big change only</option>
+                                    <option value="15">15 - Small, ongoing improvements</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="culture-component">
-                            <h4>Ownership</h4>
-                            <div class="culture-weight">Weight: 30%</div>
-                            <input type="number" class="score-input culture-score" data-component="ownership" data-weight="30" max="5" min="1" placeholder="1-5">
+
+                        <!-- Spiritual -->
+                        <div class="culture-question">
+                            <div class="culture-header">
+                                <h3>🧘 4. Spiritual (15%)</h3>
+                                <div class="culture-weight">Weight: 15%</div>
+                            </div>
+                            <div class="culture-prompt">
+                                <strong>Question:</strong> "Do you believe in meditation? Did you try it before?"
+                            </div>
+                            <div class="scoring-criteria">
+                                <div class="criteria-item">
+                                    <span class="score-label">0</span>
+                                    <span class="criteria-text">Doesn't believe and didn't try</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">10</span>
+                                    <span class="criteria-text">Believes but haven't tried it before</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">15</span>
+                                    <span class="criteria-text">Believes in it, practices it, and respects others' views</span>
+                                </div>
+                            </div>
+                            <div class="score-selector">
+                                <label>Score:</label>
+                                <select class="culture-score-select" data-component="spiritual" data-weight="15">
+                                    <option value="">Select Score</option>
+                                    <option value="0">0 - Doesn't believe, didn't try</option>
+                                    <option value="10">10 - Believes but haven't tried</option>
+                                    <option value="15">15 - Believes, practices, respects others</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="culture-component">
-                            <h4>Spiritual</h4>
-                            <div class="culture-weight">Weight: 15%</div>
-                            <input type="number" class="score-input culture-score" data-component="spiritual" data-weight="15" max="5" min="1" placeholder="1-5">
+
+                        <!-- Ownership -->
+                        <div class="culture-question">
+                            <div class="culture-header">
+                                <h3>🎯 5. Ownership - BY ME (30%)</h3>
+                                <div class="culture-weight">Weight: 30%</div>
+                            </div>
+                            <div class="culture-prompt">
+                                <strong>Question:</strong> "Tell me about a time when you felt treated unfairly at work. How did you handle it?"
+                            </div>
+                            <div class="scoring-criteria">
+                                <div class="criteria-item">
+                                    <span class="score-label">0</span>
+                                    <span class="criteria-text">Blame others without reflection or responsibility</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">15</span>
+                                    <span class="criteria-text">Describe the situation neutrally, without blame or emotional bias</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">30</span>
+                                    <span class="criteria-text">Took clear responsibility and showed accountability in how they handled it</span>
+                                </div>
+                            </div>
+                            <div class="score-selector">
+                                <label>Score:</label>
+                                <select class="culture-score-select" data-component="ownership" data-weight="30">
+                                    <option value="">Select Score</option>
+                                    <option value="0">0 - Blames others, no responsibility</option>
+                                    <option value="15">15 - Neutral description, no blame</option>
+                                    <option value="30">30 - Clear responsibility & accountability</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="culture-total">
+                            <strong>Culture Total Score: <span id="cultureDetailedScore">0</span>/110</strong>
+                            <div style="font-size: 0.9rem; color: #64748b; margin-top: 5px;">
+                                Normalized to 100: <span id="cultureNormalizedScore">0</span>/100
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -808,10 +1106,10 @@
                 interviewer: document.getElementById('interviewerName').value
             };
             
-            // Collect culture scores
+            // Collect culture scores (now using selects)
             assessmentData.cultureScores = {};
-            document.querySelectorAll('.culture-score').forEach(input => {
-                assessmentData.cultureScores[input.dataset.component] = input.value;
+            document.querySelectorAll('.culture-score-select').forEach(select => {
+                assessmentData.cultureScores[select.dataset.component] = select.value;
             });
             
             // Collect STAR scores
@@ -845,11 +1143,11 @@
                 document.getElementById('interviewerName').value = data.candidateInfo.interviewer || '';
             }
             
-            // Load culture scores
+            // Load culture scores (now using selects)
             if (data.cultureScores) {
                 Object.keys(data.cultureScores).forEach(component => {
-                    const input = document.querySelector(`[data-component="${component}"]`);
-                    if (input) input.value = data.cultureScores[component];
+                    const select = document.querySelector(`[data-component="${component}"]`);
+                    if (select) select.value = data.cultureScores[component];
                 });
             }
             
@@ -1012,22 +1310,25 @@
             }
         }
         
-        // Calculate Culture Score with weighted components
+        // Calculate Culture Score with new detailed scoring system
         function calculateCultureScore() {
-            let weightedSum = 0;
-            let totalWeight = 0;
+            let totalScore = 0;
+            let maxPossibleScore = 110; // 30+20+15+15+30
             
-            const cultureScores = document.querySelectorAll('.culture-score');
-            cultureScores.forEach(input => {
-                const score = parseInt(input.value) || 0;
-                const weight = parseInt(input.dataset.weight);
-                weightedSum += (score * weight);
-                totalWeight += weight;
+            const cultureSelects = document.querySelectorAll('.culture-score-select');
+            cultureSelects.forEach(select => {
+                const score = parseInt(select.value) || 0;
+                totalScore += score;
             });
             
-            // Note: totalWeight is 110%, so we normalize to 100
-            const normalizedScore = totalWeight > 0 ? (weightedSum / totalWeight) * 20 : 0; // *20 to scale to 100
-            return Math.round(normalizedScore);
+            // Update detailed display
+            document.getElementById('cultureDetailedScore').textContent = totalScore;
+            
+            // Normalize to 100-point scale
+            const normalizedScore = Math.round((totalScore / maxPossibleScore) * 100);
+            document.getElementById('cultureNormalizedScore').textContent = normalizedScore;
+            
+            return normalizedScore;
         }
         
         // Calculate scores
@@ -1161,6 +1462,12 @@
             
             // Add event listeners for real-time calculation and auto-save
             document.addEventListener('input', (e) => {
+                calculateScores();
+                autoSave();
+            });
+            
+            // Add change event listener for select elements
+            document.addEventListener('change', (e) => {
                 calculateScores();
                 autoSave();
             });
