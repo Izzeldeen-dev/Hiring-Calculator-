@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BeContent Hiring Assessment Calculator</title>
+    <title>BeContent Hiring Assessment Calculator - Real-time</title>
     <style>
         * {
             margin: 0;
@@ -46,6 +46,60 @@
             padding: 40px;
             text-align: center;
             border-bottom: 3px solid #3b82f6;
+            position: relative;
+        }
+        
+        .realtime-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.connected {
+            background: #10b981;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .session-controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .session-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .session-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
         
         .company-logo {
@@ -68,6 +122,16 @@
             font-size: 1.1rem;
             opacity: 0.9;
             font-weight: 400;
+        }
+        
+        .session-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: #1e40af;
+            padding: 12px 16px;
+            margin: 16px 40px 0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            text-align: left;
         }
         
         .candidate-info {
@@ -115,6 +179,11 @@
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .info-item input.editing {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
         }
         
         .content {
@@ -204,11 +273,29 @@
             padding: 24px;
             margin-bottom: 24px;
             transition: all 0.2s ease;
+            position: relative;
         }
         
         .culture-question:hover {
             border-color: #3b82f6;
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+        
+        .culture-question.editing {
+            border-color: #f59e0b;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
+        }
+        
+        .editing-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f59e0b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
         }
         
         .culture-header {
@@ -319,6 +406,11 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         
+        .culture-score-select.editing {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+        
         .culture-score-select option {
             padding: 8px;
         }
@@ -398,6 +490,11 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         
+        .score-input.editing {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+        
         .knowledge-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -475,11 +572,17 @@
             padding: 24px;
             margin-bottom: 24px;
             transition: all 0.2s ease;
+            position: relative;
         }
         
         .knowledge-question-detail:hover {
             border-color: #3b82f6;
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+        
+        .knowledge-question-detail.editing {
+            border-color: #f59e0b;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
         }
         
         .knowledge-header {
@@ -584,6 +687,11 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         
+        .knowledge-score-select.editing {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+        
         .knowledge-total {
             background: linear-gradient(135deg, #f59e0b, #d97706);
             color: white;
@@ -633,6 +741,49 @@
         
         .sidebar-content {
             padding: 24px;
+        }
+        
+        .active-users {
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .active-users h4 {
+            color: #cbd5e1;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .user-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #334155;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #06b6d4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.7rem;
         }
         
         .score-section {
@@ -754,7 +905,7 @@
             border-bottom: 1px solid #334155;
         }
         
-        .share-btn, .export-btn, .import-btn {
+        .share-btn, .export-btn, .new-session-btn {
             width: 100%;
             padding: 12px 16px;
             margin-bottom: 8px;
@@ -790,12 +941,12 @@
             transform: translateY(-1px);
         }
         
-        .import-btn {
+        .new-session-btn {
             background: linear-gradient(135deg, #8b5cf6, #7c3aed);
             color: white;
         }
         
-        .import-btn:hover {
+        .new-session-btn:hover {
             background: linear-gradient(135deg, #7c3aed, #6d28d9);
             transform: translateY(-1px);
         }
@@ -814,6 +965,7 @@
             transform: translateY(-100px);
             opacity: 0;
             transition: all 0.3s ease;
+            max-width: 300px;
         }
         
         .notification.show {
@@ -829,19 +981,87 @@
             background: #dc2626;
         }
         
-        .auto-save-indicator {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            text-align: center;
-            margin-top: 12px;
+        .session-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
         }
         
-        .auto-save-indicator.saving {
-            color: #06b6d4;
+        .session-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .modal-content h3 {
+            margin-bottom: 16px;
+            color: #1e293b;
+        }
+        
+        .modal-content p {
+            margin-bottom: 24px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        
+        .modal-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .modal-btn.primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .modal-btn.primary:hover {
+            background: #2563eb;
+        }
+        
+        .modal-btn.secondary {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+        
+        .modal-btn.secondary:hover {
+            background: #e2e8f0;
         }
         
         .alert {
@@ -937,13 +1157,40 @@
     </style>
 </head>
 <body>
+    <!-- Session Modal -->
+    <div class="session-modal" id="sessionModal">
+        <div class="modal-content">
+            <h3>Join Session</h3>
+            <p>Enter your name to join the collaborative assessment session:</p>
+            <input type="text" id="userNameInput" class="modal-input" placeholder="Your name" maxlength="20">
+            <div class="modal-buttons">
+                <button class="modal-btn primary" onclick="joinSession()">Join Session</button>
+            </div>
+        </div>
+    </div>
+
     <div class="main-container">
         <!-- Main Content Area -->
         <div class="content-area">
             <div class="header">
+                <div class="session-controls">
+                    <button class="session-btn" onclick="createNewSession()">🆕 New Session</button>
+                    <button class="session-btn" onclick="showJoinModal()">🔗 Join Session</button>
+                </div>
+                
+                <div class="realtime-indicator">
+                    <div class="status-dot" id="connectionStatus"></div>
+                    <span id="connectionText">Connecting...</span>
+                </div>
+                
                 <div class="company-logo">BeContent</div>
                 <h1>Hiring Assessment Calculator</h1>
                 <p>Social Media Content Creator / Podcast Interviewer Role</p>
+                
+                <div class="session-info" id="sessionInfo" style="display: none;">
+                    <strong>Session ID:</strong> <span id="sessionId"></span><br>
+                    <strong>Share this ID with your team to collaborate in real-time</strong>
+                </div>
             </div>
             
             <div class="candidate-info">
@@ -1235,16 +1482,26 @@
         <div class="sidebar">
             <div class="sidebar-header">
                 <h3>📊 Assessment Results</h3>
-                <p style="opacity: 0.8; font-size: 0.9rem;">Real-time scoring</p>
+                <p style="opacity: 0.8; font-size: 0.9rem;">Real-time collaborative scoring</p>
             </div>
             
             <div class="sidebar-content">
+                <!-- Active Users -->
+                <div class="active-users">
+                    <h4>Active Users</h4>
+                    <div class="user-list" id="userList">
+                        <div class="user-item">
+                            <div class="user-avatar">Y</div>
+                            <span>You</span>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Sharing Controls -->
                 <div class="sharing-section">
-                    <button class="share-btn" onclick="generateShareLink()">📤 Share Assessment</button>
+                    <button class="share-btn" onclick="shareSession()">📤 Share Session</button>
                     <button class="export-btn" onclick="exportData()">💾 Export Data</button>
-                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
-                    <button class="import-btn" onclick="document.getElementById('importFile').click()">📁 Import Data</button>
+                    <button class="new-session-btn" onclick="createNewSession()">🆕 New Session</button>
                 </div>
                 
                 <div class="score-section">
@@ -1289,10 +1546,6 @@
                     <h4>Recommendation</h4>
                     <p id="recommendationText">Enter scores to see detailed recommendation</p>
                 </div>
-                
-                <div class="auto-save-indicator" id="autoSaveStatus">
-                    💾 Auto-saved locally
-                </div>
             </div>
         </div>
     </div>
@@ -1300,7 +1553,51 @@
     <!-- Notification Toast -->
     <div class="notification" id="notification"></div>
 
+    <!-- Firebase SDK v9+ -->
+    <script type="module">
+        // Import Firebase functions
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, set, onValue, onDisconnect, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyADvStNZePjINUQQtK_t0Cwh2AKQOvm9EQ",
+            authDomain: "becontent-assessment.firebaseapp.com",
+            databaseURL: "https://becontent-assessment-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "becontent-assessment",
+            storageBucket: "becontent-assessment.firebasestorage.app",
+            messagingSenderId: "656870358413",
+            appId: "1:656870358413:web:ae6b62a76ce682761ed1c4"
+        };
+
+        // Initialize Firebase
+        let app, database, currentSessionRef;
+        let currentUser = null;
+        let sessionId = null;
+        let isConnected = false;
+        let updateTimeout = null;
+
+        try {
+            app = initializeApp(firebaseConfig);
+            database = getDatabase(app);
+            setupConnection();
+        } catch (error) {
+            console.warn('Firebase not available, falling back to local mode:', error);
+            updateConnectionStatus(false, 'Local Mode - ' + error.message);
+        }
+
+        // Make Firebase functions available globally
+        window.firebaseApp = app;
+        window.firebaseDatabase = database;
+        window.firebaseRef = ref;
+        window.firebaseSet = set;
+        window.firebaseOnValue = onValue;
+        window.firebaseOnDisconnect = onDisconnect;
+        window.firebaseRemove = remove;
+    </script>
+
     <script>
+
         // Global state management
         let assessmentData = {
             candidateInfo: {},
@@ -1484,9 +1781,235 @@
             }
         };
         
-        // Auto-save functionality
-        let autoSaveTimeout;
+        // Real-time collaboration functions
+        function setupConnection() {
+            if (!database) return;
+            
+            const connectedRef = window.firebaseRef(database, '.info/connected');
+            window.firebaseOnValue(connectedRef, (snapshot) => {
+                isConnected = snapshot.val();
+                updateConnectionStatus(isConnected, isConnected ? 'Connected' : 'Disconnected');
+            });
+        }
         
+        function updateConnectionStatus(connected, text) {
+            const statusDot = document.getElementById('connectionStatus');
+            const statusText = document.getElementById('connectionText');
+            
+            if (connected) {
+                statusDot.classList.add('connected');
+                statusText.textContent = text;
+            } else {
+                statusDot.classList.remove('connected');
+                statusText.textContent = text;
+            }
+        }
+        
+        function generateSessionId() {
+            return Math.random().toString(36).substr(2, 8).toUpperCase();
+        }
+        
+        function showJoinModal() {
+            const modal = document.getElementById('sessionModal');
+            modal.classList.add('show');
+        }
+        
+        function hideJoinModal() {
+            const modal = document.getElementById('sessionModal');
+            modal.classList.remove('show');
+        }
+        
+        function joinSession() {
+            const userName = document.getElementById('userNameInput').value.trim();
+            const sessionIdInput = prompt('Enter Session ID:');
+            
+            if (!userName) {
+                showNotification('Please enter your name', 'error');
+                return;
+            }
+            
+            if (!sessionIdInput) {
+                return;
+            }
+            
+            currentUser = {
+                name: userName,
+                id: Date.now().toString(),
+                avatar: userName.charAt(0).toUpperCase(),
+                color: getRandomColor()
+            };
+            
+            sessionId = sessionIdInput.toUpperCase();
+            
+            if (database) {
+                setupRealtimeSession();
+            } else {
+                showNotification('Joined local session (Firebase not available)', 'warning');
+            }
+            
+            hideJoinModal();
+            updateSessionInfo();
+        }
+        
+        function createNewSession() {
+            const userName = prompt('Enter your name:');
+            if (!userName) return;
+            
+            currentUser = {
+                name: userName,
+                id: Date.now().toString(),
+                avatar: userName.charAt(0).toUpperCase(),
+                color: getRandomColor()
+            };
+            
+            sessionId = generateSessionId();
+            
+            if (database) {
+                setupRealtimeSession();
+            } else {
+                showNotification('Created local session (Firebase not available)', 'warning');
+            }
+            
+            updateSessionInfo();
+            showNotification(`Session ${sessionId} created! Share this ID with your team.`);
+        }
+        
+        function setupRealtimeSession() {
+            if (!database || !sessionId) return;
+            
+            currentSessionRef = window.firebaseRef(database, `sessions/${sessionId}`);
+            
+            // Add user to session
+            const userRef = window.firebaseRef(database, `sessions/${sessionId}/users/${currentUser.id}`);
+            window.firebaseSet(userRef, currentUser);
+            
+            // Remove user when they leave
+            const disconnectRef = window.firebaseOnDisconnect(userRef);
+            disconnectRef.remove();
+            
+            // Listen for data changes
+            const dataRef = window.firebaseRef(database, `sessions/${sessionId}/data`);
+            window.firebaseOnValue(dataRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    loadAllData(data);
+                }
+            });
+            
+            // Listen for users
+            const usersRef = window.firebaseRef(database, `sessions/${sessionId}/users`);
+            window.firebaseOnValue(usersRef, (snapshot) => {
+                const users = snapshot.val() || {};
+                updateUserList(users);
+            });
+            
+            // Listen for editing indicators
+            const editingRef = window.firebaseRef(database, `sessions/${sessionId}/editing`);
+            window.firebaseOnValue(editingRef, (snapshot) => {
+                const editing = snapshot.val() || {};
+                updateEditingIndicators(editing);
+            });
+        }
+        
+        function updateUserList(users) {
+            const userList = document.getElementById('userList');
+            userList.innerHTML = '';
+            
+            Object.values(users).forEach(user => {
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                userItem.innerHTML = `
+                    <div class="user-avatar" style="background: ${user.color || '#06b6d4'}">${user.avatar}</div>
+                    <span>${user.name}${user.id === currentUser?.id ? ' (You)' : ''}</span>
+                `;
+                userList.appendChild(userItem);
+            });
+        }
+        
+        function updateEditingIndicators(editing) {
+            // Remove all existing indicators
+            document.querySelectorAll('.editing-indicator').forEach(el => el.remove());
+            document.querySelectorAll('.editing').forEach(el => el.classList.remove('editing'));
+            
+            Object.entries(editing).forEach(([userId, fieldId]) => {
+                if (userId === currentUser?.id) return; // Don't show our own editing
+                
+                const element = document.getElementById(fieldId) || document.querySelector(`[data-component="${fieldId}"]`);
+                if (element) {
+                    element.classList.add('editing');
+                    
+                    // Add visual indicator for culture questions
+                    const parent = element.closest('.culture-question, .knowledge-question-detail');
+                    if (parent && !parent.querySelector('.editing-indicator')) {
+                        const indicator = document.createElement('div');
+                        indicator.className = 'editing-indicator';
+                        indicator.textContent = `${Object.values(editing)[0] || 'Someone'} editing`;
+                        parent.appendChild(indicator);
+                    }
+                }
+            });
+        }
+        
+        function pushToFirebase() {
+            if (!currentSessionRef) return;
+            
+            clearTimeout(updateTimeout);
+            updateTimeout = setTimeout(() => {
+                collectAllData();
+                const dataRef = window.firebaseRef(database, `sessions/${sessionId}/data`);
+                window.firebaseSet(dataRef, assessmentData);
+            }, 500);
+        }
+        
+        function setFieldEditing(fieldId, isEditing) {
+            if (!currentSessionRef || !currentUser) return;
+            
+            const editingRef = window.firebaseRef(database, `sessions/${sessionId}/editing/${currentUser.id}`);
+            if (isEditing) {
+                window.firebaseSet(editingRef, fieldId);
+            } else {
+                window.firebaseRemove(editingRef);
+            }
+        }
+        
+        function getRandomColor() {
+            const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#f97316'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        function updateSessionInfo() {
+            const sessionInfo = document.getElementById('sessionInfo');
+            const sessionIdSpan = document.getElementById('sessionId');
+            
+            if (sessionId) {
+                sessionIdSpan.textContent = sessionId;
+                sessionInfo.style.display = 'block';
+            } else {
+                sessionInfo.style.display = 'none';
+            }
+        }
+        
+        function shareSession() {
+            if (!sessionId) {
+                showNotification('No active session to share', 'error');
+                return;
+            }
+            
+            const shareText = `Join my BeContent assessment session!\nSession ID: ${sessionId}\nGo to: ${window.location.origin}${window.location.pathname}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'BeContent Assessment Session',
+                    text: shareText
+                });
+            } else {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    showNotification('Session details copied to clipboard! 📋');
+                });
+            }
+        }
+        
+        // Notification system
         function showNotification(message, type = 'success') {
             const notification = document.getElementById('notification');
             notification.textContent = message;
@@ -1495,30 +2018,10 @@
             
             setTimeout(() => {
                 notification.classList.remove('show');
-            }, 3000);
+            }, 4000);
         }
         
-        function updateAutoSaveStatus(status) {
-            const indicator = document.getElementById('autoSaveStatus');
-            if (status === 'saving') {
-                indicator.innerHTML = '💾 Saving...';
-                indicator.classList.add('saving');
-            } else {
-                indicator.innerHTML = '💾 Auto-saved locally';
-                indicator.classList.remove('saving');
-            }
-        }
-        
-        function autoSave() {
-            clearTimeout(autoSaveTimeout);
-            autoSaveTimeout = setTimeout(() => {
-                updateAutoSaveStatus('saving');
-                collectAllData();
-                localStorage.setItem('becontent_assessment', JSON.stringify(assessmentData));
-                setTimeout(() => updateAutoSaveStatus('saved'), 500);
-            }, 1000);
-        }
-        
+        // Data collection and loading functions
         function collectAllData() {
             // Collect candidate info
             assessmentData.candidateInfo = {
@@ -1547,7 +2050,7 @@
                 assessmentData.starScores[key] = input.value;
             });
             
-            // Collect knowledge scores (new system)
+            // Collect knowledge scores
             assessmentData.knowledgeScores = {};
             document.querySelectorAll('.knowledge-score-select').forEach(select => {
                 assessmentData.knowledgeScores[`q${select.dataset.question}`] = select.value;
@@ -1585,7 +2088,7 @@
                 generateKnowledgeQuestions();
             }
             
-            // Load culture scores (using selects)
+            // Load culture scores
             if (data.cultureScores) {
                 Object.keys(data.cultureScores).forEach(component => {
                     const select = document.querySelector(`[data-component="${component}"]`);
@@ -1603,7 +2106,7 @@
                 });
             }
             
-            // Load knowledge scores (new system) - need to wait for questions to generate
+            // Load knowledge scores
             if (data.knowledgeScores) {
                 setTimeout(() => {
                     Object.keys(data.knowledgeScores).forEach(key => {
@@ -1625,55 +2128,6 @@
             calculateScores();
         }
         
-        function loadFromURL() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const encodedData = urlParams.get('data');
-            
-            if (encodedData) {
-                try {
-                    const decodedData = JSON.parse(atob(encodedData));
-                    loadAllData(decodedData);
-                    showNotification('Assessment loaded from shared link!');
-                    // Clean URL after loading
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                } catch (error) {
-                    showNotification('Error loading shared link data', 'error');
-                }
-            }
-        }
-        
-        function loadFromLocalStorage() {
-            const saved = localStorage.getItem('becontent_assessment');
-            if (saved) {
-                try {
-                    const data = JSON.parse(saved);
-                    loadAllData(data);
-                } catch (error) {
-                    console.error('Error loading saved data:', error);
-                }
-            }
-        }
-        
-        function generateShareLink() {
-            collectAllData();
-            const encodedData = btoa(JSON.stringify(assessmentData));
-            const shareUrl = `${window.location.origin}${window.location.pathname}?data=${encodedData}`;
-            
-            // Copy to clipboard
-            navigator.clipboard.writeText(shareUrl).then(() => {
-                showNotification('Share link copied to clipboard! 📋');
-            }).catch(() => {
-                // Fallback for older browsers
-                const textArea = document.createElement('textarea');
-                textArea.value = shareUrl;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                showNotification('Share link copied to clipboard! 📋');
-            });
-        }
-        
         function exportData() {
             collectAllData();
             const candidateName = assessmentData.candidateInfo.name || 'candidate';
@@ -1690,24 +2144,7 @@
             showNotification('Assessment data exported! 💾');
         }
         
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    loadAllData(data);
-                    showNotification('Assessment data imported successfully! 📁');
-                } catch (error) {
-                    showNotification('Error importing file. Please check the format.', 'error');
-                }
-            };
-            reader.readAsText(file);
-        }
-        
-        // Generate STAR Method Questions
+        // Question generation functions
         function generateStarQuestions() {
             const container = document.getElementById('starQuestions');
             for (let i = 1; i <= 5; i++) {
@@ -1741,7 +2178,6 @@
             }
         }
         
-        // Generate Knowledge Questions based on selection
         function generateKnowledgeQuestions() {
             const container = document.getElementById('knowledgeQuestions');
             container.innerHTML = '';
@@ -1758,7 +2194,6 @@
                 let criteriaHTML = '';
                 
                 if (questionData.options) {
-                    // Multiple choice question
                     criteriaHTML = `
                         <div class="criteria-section">
                             <h5>✅ Correct Answer (5 points):</h5>
@@ -1776,7 +2211,6 @@
                         </div>
                     `;
                 } else {
-                    // Open-ended question
                     criteriaHTML = `
                         <div class="criteria-section">
                             <h5>✅ Must Mention (5 points):</h5>
@@ -1837,9 +2271,7 @@
                 }
             });
             
-            // Limit to 6 questions
             if (selectedQuestions.length > 6) {
-                // Uncheck the last selected
                 const lastCheckbox = Array.from(checkboxes).find(cb => 
                     parseInt(cb.dataset.question) === selectedQuestions[selectedQuestions.length - 1]
                 );
@@ -1853,8 +2285,10 @@
             document.getElementById('selectedCount').textContent = selectedQuestions.length;
             
             generateKnowledgeQuestions();
+            pushToFirebase();
         }
         
+        // Scoring functions
         function updateKnowledgeScore() {
             let totalScore = 0;
             const maxPossibleScore = assessmentData.selectedQuestions.length * 5;
@@ -1873,10 +2307,9 @@
             return percentage;
         }
         
-        // Calculate Culture Score with new detailed scoring system
         function calculateCultureScore() {
             let totalScore = 0;
-            let maxPossibleScore = 110; // 30+20+15+15+30
+            let maxPossibleScore = 110;
             
             const cultureSelects = document.querySelectorAll('.culture-score-select');
             cultureSelects.forEach(select => {
@@ -1884,22 +2317,17 @@
                 totalScore += score;
             });
             
-            // Update detailed display
             document.getElementById('cultureDetailedScore').textContent = totalScore;
             
-            // Normalize to 100-point scale
             const normalizedScore = Math.round((totalScore / maxPossibleScore) * 100);
             document.getElementById('cultureNormalizedScore').textContent = normalizedScore;
             
             return normalizedScore;
         }
         
-        // Calculate scores
         function calculateScores() {
-            // Calculate Culture score (weighted)
             const cultureScore = calculateCultureScore();
             
-            // Calculate STAR Method total
             let starTotal = 0;
             const starScores = document.querySelectorAll('.star-score');
             starScores.forEach(input => {
@@ -1907,7 +2335,6 @@
                 starTotal += value;
             });
             
-            // Update individual question totals
             for (let i = 1; i <= 5; i++) {
                 let questionTotal = 0;
                 const questionInputs = document.querySelectorAll(`[data-question="${i}"].star-score`);
@@ -1918,32 +2345,26 @@
                 if (totalElement) totalElement.textContent = questionTotal;
             }
             
-            // Calculate Knowledge total (new system)
             const knowledgePercentage = updateKnowledgeScore();
             
-            // Convert to percentages (100-point scale)
             const culturePercentage = cultureScore;
-            const communicationPercentage = starTotal; // Already out of 100 (5 questions × 4 components × 5 points)
-            const contentPercentage = knowledgePercentage; // Already calculated as percentage
+            const communicationPercentage = starTotal;
+            const contentPercentage = knowledgePercentage;
             
-            // Calculate weighted combined score
             const combinedWeightedScore = Math.round(
                 (culturePercentage * 0.4) + 
                 (communicationPercentage * 0.3) + 
                 (contentPercentage * 0.3)
             );
             
-            // Update display
             document.getElementById('cultureScore').textContent = culturePercentage;
             document.getElementById('communicationScore').textContent = communicationPercentage;
             document.getElementById('contentScore').textContent = contentPercentage;
             document.getElementById('combinedWeightedScore').textContent = combinedWeightedScore;
             
-            // Check qualification for role-play
             const isQualified = combinedWeightedScore >= 80;
             updateQualificationStatus(isQualified, combinedWeightedScore);
             
-            // Handle role-play section
             const roleplaySection = document.getElementById('roleplaySection');
             if (isQualified) {
                 roleplaySection.classList.remove('disabled');
@@ -1955,7 +2376,6 @@
             }
         }
         
-        // Calculate Role-Play Score
         function calculateRolePlayScore() {
             const questionQuality = parseInt(document.getElementById('questionQuality').value) || 0;
             const followupSkills = parseInt(document.getElementById('followupSkills').value) || 0;
@@ -1969,7 +2389,6 @@
             generateRecommendation(true, combinedScore, roleplayTotal);
         }
         
-        // Update qualification status
         function updateQualificationStatus(isQualified, score) {
             const statusDiv = document.getElementById('qualificationStatus');
             const textDiv = document.getElementById('qualificationText');
@@ -1983,7 +2402,6 @@
             }
         }
         
-        // Generate recommendation based on scores
         function generateRecommendation(qualified, combinedScore, roleplayScore) {
             const textDiv = document.getElementById('recommendationText');
             const finalStatusDiv = document.getElementById('finalStatus');
@@ -2009,7 +2427,7 @@
             finalStatusDiv.textContent = finalStatus;
         }
         
-        // Initialize the calculator
+        // Initialize the application
         function init() {
             generateStarQuestions();
             
@@ -2019,32 +2437,43 @@
                 checkbox.addEventListener('change', handleQuestionSelection);
             });
             
-            // Load data from URL first (for shared links), then localStorage
-            loadFromURL();
-            if (!window.location.search) {
-                loadFromLocalStorage();
-            }
+            // Show join modal on startup
+            setTimeout(() => {
+                if (!sessionId) {
+                    showJoinModal();
+                }
+            }, 1000);
             
-            // Add event listeners for real-time calculation and auto-save
+            // Add event listeners with Firebase sync
             document.addEventListener('input', (e) => {
                 calculateScores();
-                autoSave();
+                pushToFirebase();
+                
+                // Handle editing indicators
+                if (e.target.id) {
+                    setFieldEditing(e.target.id, true);
+                } else if (e.target.dataset.component) {
+                    setFieldEditing(e.target.dataset.component, true);
+                }
             });
             
-            // Add change event listener for select elements
             document.addEventListener('change', (e) => {
                 if (e.target.classList.contains('knowledge-score-select') || 
                     e.target.classList.contains('culture-score-select')) {
                     calculateScores();
-                    autoSave();
+                    pushToFirebase();
                 }
+            });
+            
+            document.addEventListener('blur', (e) => {
+                setFieldEditing(e.target.id || e.target.dataset.component, false);
             });
             
             // Initial calculation
             calculateScores();
         }
         
-        // Start the app
+        // Start the application
         init();
     </script>
 </body>
