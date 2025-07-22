@@ -1580,25 +1580,31 @@
         try {
             app = initializeApp(firebaseConfig);
             database = getDatabase(app);
-            setupConnection();
+            
+            // Make Firebase available globally
+            window.firebaseApp = app;
+            window.firebaseDatabase = database;
+            window.firebaseRef = ref;
+            window.firebaseSet = set;
+            window.firebaseOnValue = onValue;
+            window.firebaseOnDisconnect = onDisconnect;
+            window.firebaseRemove = remove;
+            
+            console.log('Firebase initialized successfully');
         } catch (error) {
-            console.warn('Firebase not available, falling back to local mode:', error);
-            updateConnectionStatus(false, 'Local Mode - ' + error.message);
+            console.error('Firebase initialization error:', error);
+            // Will be handled by updateConnectionStatus in main script
         }
-
-        // Make Firebase functions available globally
-        window.firebaseApp = app;
-        window.firebaseDatabase = database;
-        window.firebaseRef = ref;
-        window.firebaseSet = set;
-        window.firebaseOnValue = onValue;
-        window.firebaseOnDisconnect = onDisconnect;
-        window.firebaseRemove = remove;
     </script>
 
     <script>
 
         // Global state management
+        let currentUser = null;
+        let sessionId = null;
+        let isConnected = false;
+        let updateTimeout = null;
+        
         let assessmentData = {
             candidateInfo: {},
             cultureScores: {},
@@ -1783,9 +1789,9 @@
         
         // Real-time collaboration functions
         function setupConnection() {
-            if (!database) return;
+            if (!window.firebaseDatabase) return;
             
-            const connectedRef = window.firebaseRef(database, '.info/connected');
+            const connectedRef = window.firebaseRef(window.firebaseDatabase, '.info/connected');
             window.firebaseOnValue(connectedRef, (snapshot) => {
                 isConnected = snapshot.val();
                 updateConnectionStatus(isConnected, isConnected ? 'Connected' : 'Disconnected');
@@ -1841,8 +1847,9 @@
             
             sessionId = sessionIdInput.toUpperCase();
             
-            if (database) {
+            if (window.firebaseDatabase) {
                 setupRealtimeSession();
+                showNotification(`Joined session ${sessionId}!`);
             } else {
                 showNotification('Joined local session (Firebase not available)', 'warning');
             }
@@ -1864,23 +1871,21 @@
             
             sessionId = generateSessionId();
             
-            if (database) {
+            if (window.firebaseDatabase) {
                 setupRealtimeSession();
+                showNotification(`Session ${sessionId} created! Share this ID with your team.`);
             } else {
                 showNotification('Created local session (Firebase not available)', 'warning');
             }
             
             updateSessionInfo();
-            showNotification(`Session ${sessionId} created! Share this ID with your team.`);
         }
         
         function setupRealtimeSession() {
-            if (!database || !sessionId) return;
-            
-            currentSessionRef = window.firebaseRef(database, `sessions/${sessionId}`);
+            if (!window.firebaseDatabase || !sessionId) return;
             
             // Add user to session
-            const userRef = window.firebaseRef(database, `sessions/${sessionId}/users/${currentUser.id}`);
+            const userRef = window.firebaseRef(window.firebaseDatabase, `sessions/${sessionId}/users/${currentUser.id}`);
             window.firebaseSet(userRef, currentUser);
             
             // Remove user when they leave
@@ -1888,7 +1893,7 @@
             disconnectRef.remove();
             
             // Listen for data changes
-            const dataRef = window.firebaseRef(database, `sessions/${sessionId}/data`);
+            const dataRef = window.firebaseRef(window.firebaseDatabase, `sessions/${sessionId}/data`);
             window.firebaseOnValue(dataRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -1897,14 +1902,14 @@
             });
             
             // Listen for users
-            const usersRef = window.firebaseRef(database, `sessions/${sessionId}/users`);
+            const usersRef = window.firebaseRef(window.firebaseDatabase, `sessions/${sessionId}/users`);
             window.firebaseOnValue(usersRef, (snapshot) => {
                 const users = snapshot.val() || {};
                 updateUserList(users);
             });
             
             // Listen for editing indicators
-            const editingRef = window.firebaseRef(database, `sessions/${sessionId}/editing`);
+            const editingRef = window.firebaseRef(window.firebaseDatabase, `sessions/${sessionId}/editing`);
             window.firebaseOnValue(editingRef, (snapshot) => {
                 const editing = snapshot.val() || {};
                 updateEditingIndicators(editing);
@@ -1951,20 +1956,20 @@
         }
         
         function pushToFirebase() {
-            if (!currentSessionRef) return;
+            if (!window.firebaseDatabase || !sessionId) return;
             
             clearTimeout(updateTimeout);
             updateTimeout = setTimeout(() => {
                 collectAllData();
-                const dataRef = window.firebaseRef(database, `sessions/${sessionId}/data`);
+                const dataRef = window.firebaseRef(window.firebaseDatabase, `sessions/${sessionId}/data`);
                 window.firebaseSet(dataRef, assessmentData);
             }, 500);
         }
         
         function setFieldEditing(fieldId, isEditing) {
-            if (!currentSessionRef || !currentUser) return;
+            if (!window.firebaseDatabase || !sessionId || !currentUser) return;
             
-            const editingRef = window.firebaseRef(database, `sessions/${sessionId}/editing/${currentUser.id}`);
+            const editingRef = window.firebaseRef(window.firebaseDatabase, `sessions/${sessionId}/editing/${currentUser.id}`);
             if (isEditing) {
                 window.firebaseSet(editingRef, fieldId);
             } else {
@@ -2437,12 +2442,26 @@
                 checkbox.addEventListener('change', handleQuestionSelection);
             });
             
+            // Setup Firebase connection if available
+            if (window.firebaseDatabase) {
+                setupConnection();
+            } else {
+                // Wait a bit for Firebase to initialize, then try again
+                setTimeout(() => {
+                    if (window.firebaseDatabase) {
+                        setupConnection();
+                    } else {
+                        updateConnectionStatus(false, 'Local Mode - Firebase not available');
+                    }
+                }, 1000);
+            }
+            
             // Show join modal on startup
             setTimeout(() => {
                 if (!sessionId) {
                     showJoinModal();
                 }
-            }, 1000);
+            }, 1500);
             
             // Add event listeners with Firebase sync
             document.addEventListener('input', (e) => {
