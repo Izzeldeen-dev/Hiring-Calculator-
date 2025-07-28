@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BeContent Candidates Database</title>
+    <title>BeContent Hiring Assessment Calculator - Real-time</title>
     <style>
         * {
             margin: 0;
@@ -18,6 +18,28 @@
             color: #1e293b;
         }
         
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            min-height: 100vh;
+            gap: 0;
+        }
+        
+        .content-area {
+            background: #ffffff;
+            overflow-y: auto;
+        }
+        
+        .sidebar {
+            background: #1e293b;
+            color: white;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            border-left: 1px solid #e2e8f0;
+        }
+        
         .header {
             background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
             color: white;
@@ -27,54 +49,7 @@
             position: relative;
         }
         
-        .header-controls {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            display: flex;
-            gap: 8px;
-        }
-        
-        .header-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .header-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        .company-logo {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #3b82f6, #06b6d4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .header h1 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            font-weight: 400;
-        }
-        
-        .connection-status {
+        .realtime-indicator {
             position: absolute;
             top: 20px;
             right: 20px;
@@ -104,206 +79,876 @@
             50% { opacity: 0.5; }
         }
         
-        .main-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px;
+        .session-controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 8px;
         }
         
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
+        .session-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
         
-        .stat-card {
-            background: white;
-            padding: 24px;
-            border-radius: 16px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e5e7eb;
-            text-align: center;
+        .session-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
         
-        .stat-value {
+        .company-logo {
             font-size: 2rem;
             font-weight: 800;
-            color: #1e293b;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
             margin-bottom: 8px;
         }
         
-        .stat-label {
-            color: #64748b;
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+        
+        .session-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: #1e40af;
+            padding: 12px 16px;
+            margin: 16px 40px 0;
+            border-radius: 8px;
             font-size: 0.9rem;
+            text-align: left;
+        }
+        
+        .candidate-info {
+            background: #f8fafc;
+            padding: 30px 40px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .candidate-info h3 {
+            margin-bottom: 20px;
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 1.3rem;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .info-item {
+            position: relative;
+        }
+        
+        .info-item label {
+            display: block;
+            margin-bottom: 8px;
             font-weight: 500;
+            color: #374151;
+            font-size: 0.9rem;
         }
         
-        .stat-card.hired .stat-value {
-            color: #059669;
+        .info-item input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: white;
         }
         
-        .stat-card.rejected .stat-value {
-            color: #dc2626;
+        .info-item input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         
-        .stat-card.pending .stat-value {
-            color: #0891b2;
+        .info-item input.editing {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
         }
         
-        .candidates-section {
+        .content {
+            padding: 40px;
+            max-width: none;
+        }
+        
+        .section {
+            margin-bottom: 40px;
             background: white;
             border-radius: 16px;
-            padding: 0;
+            padding: 32px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             border: 1px solid #e5e7eb;
+            position: relative;
             overflow: hidden;
         }
         
-        .section-header {
-            padding: 24px 32px;
-            border-bottom: 1px solid #e5e7eb;
-            background: #f8fafc;
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
         }
         
-        .section-header h2 {
+        .section.culture::before {
+            background: linear-gradient(90deg, #ef4444, #f97316);
+        }
+        
+        .section.communication::before {
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+        }
+        
+        .section.content::before {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+        
+        .section.roleplay::before {
+            background: linear-gradient(90deg, #8b5cf6, #7c3aed);
+        }
+        
+        .section.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+            background: #f9fafb;
+        }
+        
+        .section h2 {
             color: #1e293b;
-            font-size: 1.5rem;
+            margin-bottom: 8px;
+            font-size: 1.8rem;
             font-weight: 700;
-            margin-bottom: 4px;
         }
         
         .section-subtitle {
             color: #64748b;
-            font-size: 0.9rem;
+            margin-bottom: 24px;
+            font-size: 1rem;
+            line-height: 1.6;
         }
         
-        .table-container {
-            overflow-x: auto;
-        }
-        
-        .candidates-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .candidates-table th {
-            background: #f1f5f9;
-            padding: 16px 20px;
-            text-align: left;
-            font-weight: 600;
-            color: #374151;
-            font-size: 0.9rem;
-            border-bottom: 2px solid #e5e7eb;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        
-        .candidates-table td {
-            padding: 16px 20px;
-            border-bottom: 1px solid #f1f5f9;
-            color: #1e293b;
-            font-size: 0.9rem;
-        }
-        
-        .candidates-table tr {
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-        
-        .candidates-table tr:hover {
+        .subsection {
             background: #f8fafc;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 1px solid #e2e8f0;
         }
         
-        .candidates-table tr:active {
-            background: #f1f5f9;
+        .culture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
         }
         
-        .candidate-name {
+        .culture-detailed {
+            max-width: none;
+        }
+        
+        .culture-question {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .culture-question:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+        
+        .culture-question.editing {
+            border-color: #f59e0b;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
+        }
+        
+        .editing-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f59e0b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
             font-weight: 600;
+        }
+        
+        .culture-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        
+        .culture-header h3 {
             color: #1e293b;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0;
         }
         
-        .score-cell {
-            font-weight: 600;
-            text-align: center;
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
+        .culture-weight {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 6px 12px;
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 600;
-            text-align: center;
-            min-width: 100px;
         }
         
-        .status-hired {
-            background: #d1fae5;
-            color: #065f46;
+        .culture-prompt {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            border-left: 4px solid #3b82f6;
         }
         
-        .status-not-hired {
-            background: #fee2e2;
-            color: #991b1b;
+        .culture-prompt strong {
+            color: #1e293b;
         }
         
-        .status-not-qualified {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        
-        .status-pending {
-            background: #e0f2fe;
-            color: #0c4a6e;
-        }
-        
-        .date-cell {
-            color: #64748b;
-            font-size: 0.85rem;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-            color: #64748b;
-        }
-        
-        .empty-state h3 {
-            font-size: 1.2rem;
-            margin-bottom: 8px;
-            color: #374151;
-        }
-        
-        .empty-state p {
+        .scoring-criteria {
             margin-bottom: 20px;
         }
         
-        .empty-state .header-btn {
-            background: #3b82f6;
+        .criteria-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .score-label {
+            background: #1e293b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            min-width: 32px;
+            text-align: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .criteria-text {
+            color: #374151;
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+        
+        .criteria-text em {
+            color: #6b7280;
+            font-style: italic;
+            display: block;
+            margin-top: 4px;
+            font-size: 0.85rem;
+        }
+        
+        .score-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .score-selector label {
+            font-weight: 600;
+            color: #374151;
+            min-width: 50px;
+        }
+        
+        .culture-score-select {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: white;
+            color: #1e293b;
+            transition: all 0.2s ease;
+        }
+        
+        .culture-score-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .culture-score-select.editing {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+        
+        .culture-score-select option {
+            padding: 8px;
+        }
+        
+        .culture-total {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-top: 24px;
+        }
+        
+        .culture-component {
+            text-align: center;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        
+        .culture-component:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .culture-component h4 {
+            margin-bottom: 8px;
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .culture-weight {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+        
+        .question-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .star-component {
+            text-align: center;
+        }
+        
+        .star-component h4 {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 600;
+        }
+        
+        .score-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            background: white;
+        }
+        
+        .score-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .score-input.editing {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+        
+        .knowledge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+        
+        .knowledge-selector {
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .knowledge-selector h3 {
+            color: #1e293b;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        
+        .question-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .question-options label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        
+        .question-options label:hover {
+            border-color: #3b82f6;
+            background: #f8f9ff;
+        }
+        
+        .question-options label.selected {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            color: #1e40af;
+        }
+        
+        .question-checkbox {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .selection-counter {
+            text-align: center;
+            font-weight: 600;
+            color: #374151;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .knowledge-detailed {
+            margin-top: 24px;
+        }
+        
+        .knowledge-question-detail {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .knowledge-question-detail:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+        
+        .knowledge-question-detail.editing {
+            border-color: #f59e0b;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
+        }
+        
+        .knowledge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        
+        .knowledge-header h4 {
+            color: #1e293b;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .knowledge-prompt {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .knowledge-prompt strong {
+            color: #1e293b;
+        }
+        
+        .scoring-criteria-knowledge {
+            margin-bottom: 20px;
+        }
+        
+        .criteria-section {
+            margin-bottom: 16px;
+        }
+        
+        .criteria-section h5 {
+            color: #059669;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .criteria-section.wrong h5 {
+            color: #dc2626;
+        }
+        
+        .criteria-list {
+            background: #f0fdf4;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border-left: 4px solid #059669;
+        }
+        
+        .criteria-list.wrong {
+            background: #fef2f2;
+            border-left-color: #dc2626;
+        }
+        
+        .criteria-list ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .criteria-list li {
+            color: #374151;
+            line-height: 1.5;
+            margin-bottom: 4px;
+        }
+        
+        .knowledge-score-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .knowledge-score-selector label {
+            font-weight: 600;
+            color: #374151;
+            min-width: 50px;
+        }
+        
+        .knowledge-score-select {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: white;
+            color: #1e293b;
+            transition: all 0.2s ease;
+        }
+        
+        .knowledge-score-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .knowledge-score-select.editing {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+        
+        .knowledge-total {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-top: 24px;
+        }
+        
+        .knowledge-question {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        
+        .knowledge-question:hover {
+            border-color: #3b82f6;
+        }
+        
+        .knowledge-question h4 {
+            margin-bottom: 12px;
+            color: #1e293b;
+            font-weight: 600;
+        }
+        
+        .roleplay-components {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar-header {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .sidebar-header h3 {
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+        
+        .sidebar-content {
+            padding: 24px;
+        }
+        
+        .active-users {
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .active-users h4 {
+            color: #cbd5e1;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .user-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #334155;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #06b6d4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.7rem;
+        }
+        
+        .score-section {
+            margin-bottom: 24px;
+        }
+        
+        .score-section h4 {
+            color: #cbd5e1;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 12px 16px;
+            background: #334155;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .score-value {
+            font-weight: 700;
+            color: #06b6d4;
+        }
+        
+        .weighted-score {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
             color: white;
         }
         
-        .empty-state .header-btn:hover {
-            background: #2563eb;
+        .weighted-score h4 {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            opacity: 0.9;
         }
         
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 8px;
+        .weighted-score .score {
+            font-size: 1.8rem;
+            font-weight: 800;
         }
         
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .qualification-status {
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .qualified {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+        }
+        
+        .not-qualified {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+        }
+        
+        .pending {
+            background: linear-gradient(135deg, #0891b2, #06b6d4);
+            color: white;
+        }
+        
+        .final-result {
+            background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .final-result h4 {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .final-result .status {
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+        
+        .recommendation {
+            background: #334155;
+            padding: 16px;
+            border-radius: 12px;
+            border-left: 4px solid #06b6d4;
+        }
+        
+        .recommendation h4 {
+            color: #cbd5e1;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .recommendation p {
+            color: #e2e8f0;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        
+        .sharing-section {
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .share-btn, .export-btn, .new-session-btn {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .share-btn {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+        }
+        
+        .share-btn:hover {
+            background: linear-gradient(135deg, #0891b2, #0e7490);
+            transform: translateY(-1px);
+        }
+        
+        .export-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .export-btn:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-1px);
+        }
+        
+        .new-session-btn {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+        
+        .new-session-btn:hover {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            transform: translateY(-1px);
         }
         
         .notification {
@@ -328,126 +973,579 @@
             opacity: 1;
         }
         
+        .notification.warning {
+            background: #f59e0b;
+        }
+        
         .notification.error {
             background: #dc2626;
         }
         
-        @media (max-width: 768px) {
+        .session-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .session-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .modal-content h3 {
+            margin-bottom: 16px;
+            color: #1e293b;
+        }
+        
+        .modal-content p {
+            margin-bottom: 24px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        
+        .modal-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .modal-btn.primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .modal-btn.primary:hover {
+            background: #2563eb;
+        }
+        
+        .modal-btn.secondary {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+        
+        .modal-btn.secondary:hover {
+            background: #e2e8f0;
+        }
+        
+        .alert {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .question-total {
+            text-align: center;
+            margin-top: 16px;
+            padding: 12px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #334155;
+        }
+        
+        @media (max-width: 1200px) {
             .main-container {
-                padding: 20px;
+                grid-template-columns: 1fr;
             }
             
-            .stats-grid {
+            .sidebar {
+                position: static;
+                height: auto;
+                order: -1;
+            }
+            
+            .question-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
-            
-            .header {
+        }
+        
+        @media (max-width: 768px) {
+            .content {
                 padding: 20px;
             }
             
-            .header h1 {
-                font-size: 1.8rem;
+            .section {
+                padding: 20px;
             }
             
-            .header-controls {
-                position: static;
-                margin-bottom: 20px;
-                justify-content: center;
+            .question-grid {
+                grid-template-columns: 1fr;
             }
             
-            .connection-status {
-                position: static;
-                justify-content: center;
-                margin-top: 20px;
+            .info-grid {
+                grid-template-columns: 1fr;
             }
             
-            .section-header {
-                padding: 16px 20px;
+            .culture-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
             }
             
-            .candidates-table th,
-            .candidates-table td {
-                padding: 12px 16px;
-                font-size: 0.8rem;
+            .score-selector {
+                flex-direction: column;
+                align-items: flex-start;
             }
             
-            .status-badge {
-                font-size: 0.7rem;
-                padding: 2px 8px;
-                min-width: 80px;
+            .culture-score-select {
+                width: 100%;
+            }
+            
+            .question-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .knowledge-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .knowledge-score-selector {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .knowledge-score-select {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-controls">
-            <a href="paste.txt" class="header-btn">← Back to Assessment</a>
-            <button class="header-btn" onclick="refreshData()">🔄 Refresh</button>
+    <!-- Session Modal -->
+    <div class="session-modal" id="sessionModal">
+        <div class="modal-content">
+            <h3>Join Session</h3>
+            <p>Enter your name to join the collaborative assessment session:</p>
+            <input type="text" id="userNameInput" class="modal-input" placeholder="Your name" maxlength="20">
+            <div class="modal-buttons">
+                <button class="modal-btn primary" onclick="joinSession()">Join Session</button>
+            </div>
         </div>
-        
-        <div class="connection-status">
-            <div class="status-dot" id="connectionStatus"></div>
-            <span id="connectionText">Connecting...</span>
-        </div>
-        
-        <div class="company-logo">BeContent</div>
-        <h1>Candidates Database</h1>
-        <p>All assessed candidates with their scores and final decisions</p>
     </div>
-    
+
     <div class="main-container">
-        <!-- Statistics Cards -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-value" id="totalCandidates">-</div>
-                <div class="stat-label">Total Candidates</div>
-            </div>
-            <div class="stat-card hired">
-                <div class="stat-value" id="hiredCount">-</div>
-                <div class="stat-label">Hired</div>
-            </div>
-            <div class="stat-card rejected">
-                <div class="stat-value" id="rejectedCount">-</div>
-                <div class="stat-label">Not Hired</div>
-            </div>
-            <div class="stat-card pending">
-                <div class="stat-value" id="pendingCount">-</div>
-                <div class="stat-label">Pending/Not Qualified</div>
-            </div>
-        </div>
-        
-        <!-- Candidates Table -->
-        <div class="candidates-section">
-            <div class="section-header">
-                <h2>📋 All Candidates</h2>
-                <p class="section-subtitle">Click on any candidate to view/edit their full assessment</p>
+        <!-- Main Content Area -->
+        <div class="content-area">
+            <div class="header">
+                <div class="session-controls">
+                    <button class="session-btn" onclick="createNewSession()">🆕 New Session</button>
+                    <button class="session-btn" onclick="showJoinModal()">🔗 Join Session</button>
+                    <button class="session-btn" onclick="goToCandidatesDatabase()">👥 Candidates Database</button>
+                </div>
+                
+                <div class="realtime-indicator">
+                    <div class="status-dot" id="connectionStatus"></div>
+                    <span id="connectionText">Connecting...</span>
+                </div>
+                
+                <div class="company-logo">BeContent</div>
+                <h1>Hiring Assessment Calculator</h1>
+                <p>Social Media Content Creator / Podcast Interviewer Role</p>
+                
+                <div class="session-info" id="sessionInfo" style="display: none;">
+                    <strong>Session ID:</strong> <span id="sessionId"></span><br>
+                    <strong>Share this ID with your team to collaborate in real-time</strong>
+                </div>
             </div>
             
-            <div class="table-container">
-                <table class="candidates-table" id="candidatesTable">
-                    <thead>
-                        <tr>
-                            <th>Candidate Name</th>
-                            <th>Date</th>
-                            <th>Interviewer</th>
-                            <th>Culture</th>
-                            <th>Communication</th>
-                            <th>Content</th>
-                            <th>Combined</th>
-                            <th>Role-play</th>
-                            <th>Final Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="candidatesTableBody">
-                        <!-- Loading row will be inserted here -->
-                    </tbody>
-                </table>
+            <div class="candidate-info">
+                <h3>Candidate Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Candidate Name</label>
+                        <input type="text" id="candidateName" placeholder="Enter candidate name">
+                    </div>
+                    <div class="info-item">
+                        <label>Interview Date</label>
+                        <input type="date" id="interviewDate">
+                    </div>
+                    <div class="info-item">
+                        <label>Interviewer Name</label>
+                        <input type="text" id="interviewerName" placeholder="Enter interviewer name">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content">
+                <!-- Section 1: Culture Assessment -->
+                <div class="section culture">
+                    <h2>🏛️ Culture Assessment</h2>
+                    <p class="section-subtitle">Evaluate the candidate's alignment with BeContent's core values using specific questions and scoring criteria.</p>
+                    
+                    <div class="culture-detailed">
+                        <!-- Extraordinary -->
+                        <div class="culture-question">
+                            <div class="culture-header">
+                                <h3>🌟 1. Extraordinary (30%)</h3>
+                                <div class="culture-weight">Weight: 30%</div>
+                            </div>
+                            <div class="culture-prompt">
+                                <strong>Question:</strong> "Do you have a clear vision for your future?"
+                            </div>
+                            <div class="scoring-criteria">
+                                <div class="criteria-item">
+                                    <span class="score-label">0</span>
+                                    <span class="criteria-text">NO CLEAR vision</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">15</span>
+                                    <span class="criteria-text">CLEAR BUT NORMAL vision</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">30</span>
+                                    <span class="criteria-text">VERY ASPIRING + CLEAR vision</span>
+                                </div>
+                            </div>
+                            <div class="score-selector">
+                                <label>Score:</label>
+                                <select class="culture-score-select" data-component="extraordinary" data-weight="30">
+                                    <option value="">Select Score</option>
+                                    <option value="0">0 - No clear vision</option>
+                                    <option value="15">15 - Clear but normal</option>
+                                    <option value="30">30 - Very aspiring + clear</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Creative -->
+                        <div class="culture-question">
+                            <div class="culture-header">
+                                <h3>🎨 2. Creative (20%)</h3>
+                                <div class="culture-weight">Weight: 20%</div>
+                            </div>
+                            <div class="culture-prompt">
+                                <strong>Question:</strong> "Give me 10 options to use a fine packet?"
+                            </div>
+                            <div class="scoring-criteria">
+                                <div class="criteria-item">
+                                    <span class="score-label">0</span>
+                                    <span class="criteria-text">Mentioned 0-4 options</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">10</span>
+                                    <span class="criteria-text">Mentioned 5-7 options</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">20</span>
+                                    <span class="criteria-text">Mentioned 7+ options</span>
+                                </div>
+                            </div>
+                            <div class="score-selector">
+                                <label>Score:</label>
+                                <select class="culture-score-select" data-component="creative" data-weight="20">
+                                    <option value="">Select Score</option>
+                                    <option value="0">0 - Mentioned 0-4 options</option>
+                                    <option value="10">10 - Mentioned 5-7 options</option>
+                                    <option value="20">20 - Mentioned 7+ options</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Kaizen -->
+                        <div class="culture-question">
+                            <div class="culture-header">
+                                <h3>📈 3. Kaizen - Continuous Improvement (15%)</h3>
+                                <div class="culture-weight">Weight: 15%</div>
+                            </div>
+                            <div class="culture-prompt">
+                                <strong>Question:</strong> "Tell me about something that you made minor improvements continuously"
+                                <br><br>
+                                <em>Example: "I kept adjusting how we share briefs—small tweaks each time made the process faster and clearer for everyone"</em>
+                            </div>
+                            <div class="scoring-criteria">
+                                <div class="criteria-item">
+                                    <span class="score-label">0</span>
+                                    <span class="criteria-text">No specific answer</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">10</span>
+                                    <span class="criteria-text">One big change only, not consistent<br><em>Example: "I changed my whole workflow once, and it helped."</em></span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">15</span>
+                                    <span class="criteria-text">Small, ongoing improvements over time<br><em>Example: "I started planning my day every morning, then added weekly reflections to keep improving."</em></span>
+                                </div>
+                            </div>
+                            <div class="score-selector">
+                                <label>Score:</label>
+                                <select class="culture-score-select" data-component="kaizen" data-weight="15">
+                                    <option value="">Select Score</option>
+                                    <option value="0">0 - No specific answer</option>
+                                    <option value="10">10 - One big change only</option>
+                                    <option value="15">15 - Small, ongoing improvements</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Spiritual -->
+                        <div class="culture-question">
+                            <div class="culture-header">
+                                <h3>🧘 4. Spiritual (15%)</h3>
+                                <div class="culture-weight">Weight: 15%</div>
+                            </div>
+                            <div class="culture-prompt">
+                                <strong>Question:</strong> "Do you believe in meditation? Did you try it before?"
+                            </div>
+                            <div class="scoring-criteria">
+                                <div class="criteria-item">
+                                    <span class="score-label">0</span>
+                                    <span class="criteria-text">Doesn't believe and didn't try</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">10</span>
+                                    <span class="criteria-text">Believes but haven't tried it before</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">15</span>
+                                    <span class="criteria-text">Believes in it, practices it, and respects others' views</span>
+                                </div>
+                            </div>
+                            <div class="score-selector">
+                                <label>Score:</label>
+                                <select class="culture-score-select" data-component="spiritual" data-weight="15">
+                                    <option value="">Select Score</option>
+                                    <option value="0">0 - Doesn't believe, didn't try</option>
+                                    <option value="10">10 - Believes but haven't tried</option>
+                                    <option value="15">15 - Believes, practices, respects others</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Ownership -->
+                        <div class="culture-question">
+                            <div class="culture-header">
+                                <h3>🎯 5. Ownership - BY ME (30%)</h3>
+                                <div class="culture-weight">Weight: 30%</div>
+                            </div>
+                            <div class="culture-prompt">
+                                <strong>Question:</strong> "Tell me about a time when you felt treated unfairly at work. How did you handle it?"
+                            </div>
+                            <div class="scoring-criteria">
+                                <div class="criteria-item">
+                                    <span class="score-label">0</span>
+                                    <span class="criteria-text">Blame others without reflection or responsibility</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">15</span>
+                                    <span class="criteria-text">Describe the situation neutrally, without blame or emotional bias</span>
+                                </div>
+                                <div class="criteria-item">
+                                    <span class="score-label">30</span>
+                                    <span class="criteria-text">Took clear responsibility and showed accountability in how they handled it</span>
+                                </div>
+                            </div>
+                            <div class="score-selector">
+                                <label>Score:</label>
+                                <select class="culture-score-select" data-component="ownership" data-weight="30">
+                                    <option value="">Select Score</option>
+                                    <option value="0">0 - Blames others, no responsibility</option>
+                                    <option value="15">15 - Neutral description, no blame</option>
+                                    <option value="30">30 - Clear responsibility & accountability</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="culture-total">
+                            <strong>Culture Total Score: <span id="cultureDetailedScore">0</span>/110</strong>
+                            <div style="font-size: 0.9rem; color: #64748b; margin-top: 5px;">
+                                Normalized to 100: <span id="cultureNormalizedScore">0</span>/100
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
-                <div class="empty-state" id="emptyState" style="display: none;">
-                    <h3>No candidates assessed yet</h3>
-                    <p>Start by conducting your first assessment to see candidates appear here.</p>
-                    <a href="paste.txt" class="header-btn">➕ New Assessment</a>
+                <!-- Section 2: STAR Method Assessment -->
+                <div class="section communication">
+                    <h2>📝 Communication Assessment</h2>
+                    <p class="section-subtitle">Evaluate communication skills using the STAR method. Score each component from 1-5 based on the provided rubric.</p>
+                    
+                    <div id="starQuestions">
+                        <!-- Questions 1-5 will be generated here -->
+                    </div>
+                </div>
+                
+                <!-- Section 3: Content Knowledge -->
+                <div class="section content">
+                    <h2>🧠 Content & Viral Knowledge</h2>
+                    <p class="section-subtitle">Select 6 questions from the 12 available options and score based on detailed criteria. Each question is worth 5 points for correct answers, 0 points for incorrect answers.</p>
+                    
+                    <div class="knowledge-selector">
+                        <h3>Select 6 Questions to Ask:</h3>
+                        <div class="question-options">
+                            <label><input type="checkbox" class="question-checkbox" data-question="1"> Q1: Content Repurposing</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="2"> Q2: Hook Creation</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="3"> Q3: Shareable Short-form Video</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="4"> Q4: Why People Scroll Past</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="5"> Q5: Content That Gets Saves</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="6"> Q6: Increase Video Retention</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="7"> Q7: Videos Going Viral Later</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="8"> Q8: Series-based Content Benefits</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="9"> Q9: Testing Hooks</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="10"> Q10: Role of Captions</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="11"> Q11: Best Viral Hook</label>
+                            <label><input type="checkbox" class="question-checkbox" data-question="12"> Q12: Most Important Instagram Metric</label>
+                        </div>
+                        <div class="selection-counter">
+                            Selected: <span id="selectedCount">0</span>/6 questions
+                        </div>
+                    </div>
+                    
+                    <div class="knowledge-detailed" id="knowledgeQuestions">
+                        <!-- Selected questions will appear here -->
+                    </div>
+                    
+                    <div class="knowledge-total">
+                        <strong>Content Knowledge Total: <span id="knowledgeTotalScore">0</span>/30</strong>
+                        <div style="font-size: 0.9rem; color: #64748b; margin-top: 5px;">
+                            Percentage: <span id="knowledgePercentage">0</span>%
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Section 4: Role-Play Scenario -->
+                <div class="section roleplay" id="roleplaySection">
+                    <h2>🎭 Role-Play Assessment</h2>
+                    <div class="alert">
+                        ⚠️ <strong>Qualification Required:</strong> Candidate must score 80+ on combined assessment to access role-play.
+                    </div>
+                    <p class="section-subtitle">Evaluate practical interviewing skills through mock podcast interview scenario.</p>
+                    
+                    <div class="roleplay-components">
+                        <div class="subsection">
+                            <h4>Question Quality</h4>
+                            <p style="margin-bottom: 12px; font-size: 0.9rem; color: #64748b;">Ability to create viral-worthy questions (Max: 50 points)</p>
+                            <input type="number" class="score-input" id="questionQuality" max="50" min="0" placeholder="0-50">
+                        </div>
+                        
+                        <div class="subsection">
+                            <h4>Follow-up Skills</h4>
+                            <p style="margin-bottom: 12px; font-size: 0.9rem; color: #64748b;">Probing and follow-up abilities (Max: 30 points)</p>
+                            <input type="number" class="score-input" id="followupSkills" max="30" min="0" placeholder="0-30">
+                        </div>
+                        
+                        <div class="subsection">
+                            <h4>Objection Handling</h4>
+                            <p style="margin-bottom: 12px; font-size: 0.9rem; color: #64748b;">Managing client resistance (Max: 20 points)</p>
+                            <input type="number" class="score-input" id="objectionHandling" max="20" min="0" placeholder="0-20">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>📊 Assessment Results</h3>
+                <p style="opacity: 0.8; font-size: 0.9rem;">Real-time collaborative scoring</p>
+            </div>
+            
+            <div class="sidebar-content">
+                <!-- Active Users -->
+                <div class="active-users">
+                    <h4>Active Users</h4>
+                    <div class="user-list" id="userList">
+                        <div class="user-item">
+                            <div class="user-avatar">Y</div>
+                            <span>You</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sharing Controls -->
+                <div class="sharing-section">
+                    <button class="share-btn" onclick="shareSession()">📤 Share Session</button>
+                    <button class="export-btn" onclick="exportData()">💾 Export Data</button>
+                    <button class="new-session-btn" onclick="createNewSession()">🆕 New Session</button>
+                </div>
+                
+                <div class="score-section">
+                    <h4>Section Scores</h4>
+                    <div class="score-item">
+                        <span>Culture (40%)</span>
+                        <span class="score-value"><span id="cultureScore">0</span>/100</span>
+                    </div>
+                    <div class="score-item">
+                        <span>Communication (30%)</span>
+                        <span class="score-value"><span id="communicationScore">0</span>/100</span>
+                    </div>
+                    <div class="score-item">
+                        <span>Content (30%)</span>
+                        <span class="score-value"><span id="contentScore">0</span>/100</span>
+                    </div>
+                </div>
+                
+                <div class="weighted-score">
+                    <h4>Combined Score</h4>
+                    <div class="score"><span id="combinedWeightedScore">0</span>/100</div>
+                </div>
+                
+                <div class="qualification-status" id="qualificationStatus">
+                    <span id="qualificationText">Enter scores to check qualification</span>
+                </div>
+                
+                <div class="score-section" id="roleplayScores" style="display: none;">
+                    <h4>Role-Play Results</h4>
+                    <div class="score-item">
+                        <span>Total Score</span>
+                        <span class="score-value"><span id="roleplayTotal">0</span>/100</span>
+                    </div>
+                </div>
+                
+                <div class="final-result">
+                    <h4>Final Decision</h4>
+                    <div class="status" id="finalStatus">Calculating...</div>
+                </div>
+                
+                <div class="recommendation">
+                    <h4>Recommendation</h4>
+                    <p id="recommendationText">Enter scores to see detailed recommendation</p>
                 </div>
             </div>
         </div>
@@ -460,7 +1558,7 @@
     <script type="module">
         // Import Firebase functions
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getDatabase, ref, set, onValue, onDisconnect, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
         // Your Firebase configuration
         const firebaseConfig = {
@@ -474,8 +1572,11 @@
         };
 
         // Initialize Firebase
-        let app, database;
+        let app, database, currentSessionRef;
+        let currentUser = null;
+        let sessionId = null;
         let isConnected = false;
+        let updateTimeout = null;
 
         try {
             app = initializeApp(firebaseConfig);
@@ -485,23 +1586,217 @@
             window.firebaseApp = app;
             window.firebaseDatabase = database;
             window.firebaseRef = ref;
+            window.firebaseSet = set;
             window.firebaseOnValue = onValue;
+            window.firebaseOnDisconnect = onDisconnect;
+            window.firebaseRemove = remove;
             
             console.log('Firebase initialized successfully');
-            setupConnection();
         } catch (error) {
             console.error('Firebase initialization error:', error);
-            updateConnectionStatus(false, 'Firebase Error');
+            // Will be handled by updateConnectionStatus in main script
         }
+    </script>
+
+    <script>
+
+        // Global state management
+        let currentUser = null;
+        let sessionId = null;
+        let isConnected = false;
+        let updateTimeout = null;
+        let currentCandidateId = null;
         
+        let assessmentData = {
+            candidateInfo: {},
+            cultureScores: {},
+            starScores: {},
+            knowledgeScores: {},
+            roleplayScores: {},
+            selectedQuestions: []
+        };
+        
+        // Knowledge questions database
+        const knowledgeQuestions = {
+            1: {
+                title: "Content Repurposing",
+                question: "What's the best segment from a podcast to extract as a reel?",
+                correctAnswers: [
+                    "Golden moments: 'Aha moments,' key insights, or surprising facts",
+                    "Controversial statements or strong opinions",
+                    "Actionable tips that can stand alone",
+                    "Emotional peaks (funny, shocking, inspiring moments)",
+                    "Client transformations or success stories"
+                ],
+                wrongAnswers: [
+                    "'The beginning' or 'the end'",
+                    "'Whatever looks good'",
+                    "'The longest part'",
+                    "Cannot give a specific answer"
+                ]
+            },
+            2: {
+                title: "Hook Creation",
+                question: "If your client is a [fitness/business/life] coach, provide examples of compelling hooks for their content.",
+                correctAnswers: [
+                    "Question hooks: 'Are you making this mistake that's killing your results?'",
+                    "Controversial statements: 'Everyone tells you to eat 6 meals a day. They're wrong.'",
+                    "Numbers/Lists: '3 things I wish I knew before starting my business'",
+                    "Personal stories: 'I lost 50 clients in one day. Here's what I learned...'",
+                    "Curiosity gaps: 'The one thing every successful person does (but won't admit)'"
+                ],
+                wrongAnswers: [
+                    "Generic statements like 'Here's some fitness tips'",
+                    "No specific examples given",
+                    "Copies common phrases without understanding"
+                ]
+            },
+            3: {
+                title: "Shareable Short-form Video",
+                question: "What makes a shareable short-form video?",
+                correctAnswers: [
+                    "Relatable emotion (anger, humor, relief)",
+                    "Value-packed insight",
+                    "Strong 'that's so me' or 'I need to send this' factor",
+                    "Simple + bold idea"
+                ],
+                wrongAnswers: [
+                    "'It just works'",
+                    "No emotion involved",
+                    "Just says 'good content'"
+                ]
+            },
+            4: {
+                title: "Why People Scroll Past",
+                question: "Why do people scroll past your video fast?",
+                correctAnswers: [
+                    "Boring or unclear intro",
+                    "No curiosity trigger",
+                    "Weak first frame",
+                    "Not audience-relevant"
+                ],
+                wrongAnswers: [
+                    "'They're not interested'",
+                    "'They don't like me'",
+                    "No tactical feedback"
+                ]
+            },
+            5: {
+                title: "Content That Gets Saves",
+                question: "What kind of content gets the most saves?",
+                correctAnswers: [
+                    "Valuable how-to",
+                    "Lists, frameworks, or tools",
+                    "Downloadable or applicable info",
+                    "Inspirational quotes/tips"
+                ],
+                wrongAnswers: [
+                    "'Anything good'",
+                    "Talks about likes or comments instead",
+                    "Vague praise"
+                ]
+            },
+            6: {
+                title: "Increase Video Retention",
+                question: "How can you increase retention on a 30s video?",
+                correctAnswers: [
+                    "Build curiosity",
+                    "Quick cuts",
+                    "Motion or storytelling",
+                    "Tease/payoff structure"
+                ],
+                wrongAnswers: [
+                    "'Just make it good'",
+                    "Repetitive clips",
+                    "No editing tactics"
+                ]
+            },
+            7: {
+                title: "Videos Going Viral Later",
+                question: "Why do some videos go viral days later?",
+                correctAnswers: [
+                    "Algorithm tests in waves",
+                    "Shares increase over time",
+                    "Later audience resonated more"
+                ],
+                wrongAnswers: [
+                    "No explanation",
+                    "Blames bugs or randomness"
+                ]
+            },
+            8: {
+                title: "Series-based Content Benefits",
+                question: "What's the benefit of series-based content?",
+                correctAnswers: [
+                    "Builds anticipation",
+                    "Increases profile visits",
+                    "Increases average watch time per viewer",
+                    "Boosts return viewers"
+                ],
+                wrongAnswers: [
+                    "'It's just more content'",
+                    "Doesn't understand structure",
+                    "No clear advantage"
+                ]
+            },
+            9: {
+                title: "Testing Hooks",
+                question: "What's one way to test a hook before posting?",
+                correctAnswers: [
+                    "Trial Reels Option"
+                ],
+                wrongAnswers: [
+                    "'You'll feel it'",
+                    "'Just post and learn'",
+                    "No testing mentioned"
+                ]
+            },
+            10: {
+                title: "Role of Captions",
+                question: "What's the role of captions in the video?",
+                correctAnswers: [
+                    "80–90% of people watch without sound",
+                    "Captions improve retention",
+                    "Helps comprehension",
+                    "Increases accessibility"
+                ],
+                wrongAnswers: [
+                    "'They look nice'",
+                    "Ignores silent viewing",
+                    "Doesn't mention user behavior"
+                ]
+            },
+            11: {
+                title: "Best Viral Hook",
+                question: "What hook has the highest chance of going viral?",
+                options: [
+                    "How to lose 3 kilos without any diet",
+                    "5 ways to lose weight",
+                    "Why drinking 8 cups of water is a must"
+                ],
+                correctAnswer: "How to lose 3 kilos without any diet",
+                wrongAnswers: [
+                    "5 ways to lose weight",
+                    "Why drinking 8 cups of water is a must"
+                ]
+            },
+            12: {
+                title: "Most Important Instagram Metric",
+                question: "What's the most important metric in Instagram?",
+                options: ["Likes", "Comments", "Saved", "Shares"],
+                correctAnswer: "Shares",
+                wrongAnswers: ["Likes", "Comments", "Saved"]
+            }
+        };
+        
+        // Real-time collaboration functions
         function setupConnection() {
-            const connectedRef = ref(database, '.info/connected');
-            onValue(connectedRef, (snapshot) => {
+            if (!window.firebaseDatabase) return;
+            
+            const connectedRef = window.firebaseRef(window.firebaseDatabase, '.info/connected');
+            window.firebaseOnValue(connectedRef, (snapshot) => {
                 isConnected = snapshot.val();
                 updateConnectionStatus(isConnected, isConnected ? 'Connected' : 'Disconnected');
-                if (isConnected) {
-                    loadCandidatesData();
-                }
             });
         }
         
@@ -518,25 +1813,210 @@
             }
         }
         
-        function loadCandidatesData() {
-            const candidatesRef = ref(database, 'candidates');
-            onValue(candidatesRef, (snapshot) => {
-                const candidates = snapshot.val();
-                if (candidates) {
-                    displayCandidates(Object.values(candidates));
-                    updateStats(Object.values(candidates));
-                } else {
-                    showEmptyState();
+        function generateSessionId() {
+            return Math.random().toString(36).substr(2, 8).toUpperCase();
+        }
+        
+        function showJoinModal() {
+            const modal = document.getElementById('sessionModal');
+            modal.classList.add('show');
+        }
+        
+        function hideJoinModal() {
+            const modal = document.getElementById('sessionModal');
+            modal.classList.remove('show');
+        }
+        
+        function joinSession() {
+            const userName = document.getElementById('userNameInput').value.trim();
+            const sessionIdInput = prompt('Enter Session ID:');
+            
+            if (!userName) {
+                showNotification('Please enter your name', 'error');
+                return;
+            }
+            
+            if (!sessionIdInput) {
+                return;
+            }
+            
+            currentUser = {
+                name: userName,
+                id: Date.now().toString(),
+                avatar: userName.charAt(0).toUpperCase(),
+                color: getRandomColor()
+            };
+            
+            sessionId = sessionIdInput.toUpperCase();
+            
+            if (window.firebaseDatabase) {
+                setupRealtimeSession();
+                showNotification(`Joined session ${sessionId}!`);
+            } else {
+                showNotification('Joined local session (Firebase not available)', 'warning');
+            }
+            
+            hideJoinModal();
+            updateSessionInfo();
+        }
+        
+        function createNewSession() {
+            const userName = prompt('Enter your name:');
+            if (!userName) return;
+            
+            currentUser = {
+                name: userName,
+                id: Date.now().toString(),
+                avatar: userName.charAt(0).toUpperCase(),
+                color: getRandomColor()
+            };
+            
+            sessionId = generateSessionId();
+            
+            if (window.firebaseDatabase) {
+                setupRealtimeSession();
+                showNotification(`Session ${sessionId} created! Share this ID with your team.`);
+            } else {
+                showNotification('Created local session (Firebase not available)', 'warning');
+            }
+            
+            updateSessionInfo();
+        }
+        
+        function setupRealtimeSession() {
+            if (!window.firebaseDatabase || !sessionId) return;
+            
+            // Add user to session
+            const userRef = window.firebaseRef(window.firebaseDatabase, `sessions/${sessionId}/users/${currentUser.id}`);
+            window.firebaseSet(userRef, currentUser);
+            
+            // Remove user when they leave
+            const disconnectRef = window.firebaseOnDisconnect(userRef);
+            disconnectRef.remove();
+            
+            // Listen for data changes
+            const dataRef = window.firebaseRef(window.firebaseDatabase, `sessions/${sessionId}/data`);
+            window.firebaseOnValue(dataRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    loadAllData(data);
+                }
+            });
+            
+            // Listen for users
+            const usersRef = window.firebaseRef(window.firebaseDatabase, `sessions/${sessionId}/users`);
+            window.firebaseOnValue(usersRef, (snapshot) => {
+                const users = snapshot.val() || {};
+                updateUserList(users);
+            });
+            
+            // Listen for editing indicators
+            const editingRef = window.firebaseRef(window.firebaseDatabase, `sessions/${sessionId}/editing`);
+            window.firebaseOnValue(editingRef, (snapshot) => {
+                const editing = snapshot.val() || {};
+                updateEditingIndicators(editing);
+            });
+        }
+        
+        function updateUserList(users) {
+            const userList = document.getElementById('userList');
+            userList.innerHTML = '';
+            
+            Object.values(users).forEach(user => {
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                userItem.innerHTML = `
+                    <div class="user-avatar" style="background: ${user.color || '#06b6d4'}">${user.avatar}</div>
+                    <span>${user.name}${user.id === currentUser?.id ? ' (You)' : ''}</span>
+                `;
+                userList.appendChild(userItem);
+            });
+        }
+        
+        function updateEditingIndicators(editing) {
+            // Remove all existing indicators
+            document.querySelectorAll('.editing-indicator').forEach(el => el.remove());
+            document.querySelectorAll('.editing').forEach(el => el.classList.remove('editing'));
+            
+            Object.entries(editing).forEach(([userId, fieldId]) => {
+                if (userId === currentUser?.id) return; // Don't show our own editing
+                
+                const element = document.getElementById(fieldId) || document.querySelector(`[data-component="${fieldId}"]`);
+                if (element) {
+                    element.classList.add('editing');
+                    
+                    // Add visual indicator for culture questions
+                    const parent = element.closest('.culture-question, .knowledge-question-detail');
+                    if (parent && !parent.querySelector('.editing-indicator')) {
+                        const indicator = document.createElement('div');
+                        indicator.className = 'editing-indicator';
+                        indicator.textContent = `${Object.values(editing)[0] || 'Someone'} editing`;
+                        parent.appendChild(indicator);
+                    }
                 }
             });
         }
         
-        window.loadCandidatesData = loadCandidatesData;
-    </script>
-
-    <script>
-        let candidatesData = [];
+        function pushToFirebase() {
+            if (!window.firebaseDatabase || !sessionId) return;
+            
+            clearTimeout(updateTimeout);
+            updateTimeout = setTimeout(() => {
+                collectAllData();
+                const dataRef = window.firebaseRef(window.firebaseDatabase, `sessions/${sessionId}/data`);
+                window.firebaseSet(dataRef, assessmentData);
+            }, 500);
+        }
         
+        function setFieldEditing(fieldId, isEditing) {
+            if (!window.firebaseDatabase || !sessionId || !currentUser) return;
+            
+            const editingRef = window.firebaseRef(window.firebaseDatabase, `sessions/${sessionId}/editing/${currentUser.id}`);
+            if (isEditing) {
+                window.firebaseSet(editingRef, fieldId);
+            } else {
+                window.firebaseRemove(editingRef);
+            }
+        }
+        
+        function getRandomColor() {
+            const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#f97316'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        function updateSessionInfo() {
+            const sessionInfo = document.getElementById('sessionInfo');
+            const sessionIdSpan = document.getElementById('sessionId');
+            
+            if (sessionId) {
+                sessionIdSpan.textContent = sessionId;
+                sessionInfo.style.display = 'block';
+            } else {
+                sessionInfo.style.display = 'none';
+            }
+        }
+        
+        function shareSession() {
+            if (!sessionId) {
+                showNotification('No active session to share', 'error');
+                return;
+            }
+            
+            const shareText = `Join my BeContent assessment session!\nSession ID: ${sessionId}\nGo to: ${window.location.origin}${window.location.pathname}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'BeContent Assessment Session',
+                    text: shareText
+                });
+            } else {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    showNotification('Session details copied to clipboard! 📋');
+                });
+            }
+        }
+        
+        // Notification system
         function showNotification(message, type = 'success') {
             const notification = document.getElementById('notification');
             notification.textContent = message;
@@ -548,167 +2028,482 @@
             }, 4000);
         }
         
-        function displayCandidates(candidates) {
-            const tableBody = document.getElementById('candidatesTableBody');
-            const emptyState = document.getElementById('emptyState');
+        // Data collection and loading functions
+        function collectAllData() {
+            // Collect candidate info
+            assessmentData.candidateInfo = {
+                name: document.getElementById('candidateName').value,
+                date: document.getElementById('interviewDate').value,
+                interviewer: document.getElementById('interviewerName').value
+            };
             
-            if (!candidates || candidates.length === 0) {
-                showEmptyState();
+            // Collect selected questions
+            const selectedQuestions = [];
+            document.querySelectorAll('.question-checkbox:checked').forEach(checkbox => {
+                selectedQuestions.push(parseInt(checkbox.dataset.question));
+            });
+            assessmentData.selectedQuestions = selectedQuestions;
+            
+            // Collect culture scores (using selects)
+            assessmentData.cultureScores = {};
+            document.querySelectorAll('.culture-score-select').forEach(select => {
+                assessmentData.cultureScores[select.dataset.component] = select.value;
+            });
+            
+            // Collect STAR scores
+            assessmentData.starScores = {};
+            document.querySelectorAll('.star-score').forEach(input => {
+                const key = `q${input.dataset.question}_${input.dataset.component}`;
+                assessmentData.starScores[key] = input.value;
+            });
+            
+            // Collect knowledge scores
+            assessmentData.knowledgeScores = {};
+            document.querySelectorAll('.knowledge-score-select').forEach(select => {
+                assessmentData.knowledgeScores[`q${select.dataset.question}`] = select.value;
+            });
+            
+            // Collect roleplay scores
+            assessmentData.roleplayScores = {
+                questionQuality: document.getElementById('questionQuality').value,
+                followupSkills: document.getElementById('followupSkills').value,
+                objectionHandling: document.getElementById('objectionHandling').value
+            };
+        }
+        
+        function loadAllData(data) {
+            if (!data) return;
+            
+            // Load candidate info
+            if (data.candidateInfo) {
+                document.getElementById('candidateName').value = data.candidateInfo.name || '';
+                document.getElementById('interviewDate').value = data.candidateInfo.date || '';
+                document.getElementById('interviewerName').value = data.candidateInfo.interviewer || '';
+            }
+            
+            // Load selected questions
+            if (data.selectedQuestions) {
+                assessmentData.selectedQuestions = data.selectedQuestions;
+                data.selectedQuestions.forEach(questionId => {
+                    const checkbox = document.querySelector(`[data-question="${questionId}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        checkbox.closest('label').classList.add('selected');
+                    }
+                });
+                document.getElementById('selectedCount').textContent = data.selectedQuestions.length;
+                generateKnowledgeQuestions();
+            }
+            
+            // Load culture scores
+            if (data.cultureScores) {
+                Object.keys(data.cultureScores).forEach(component => {
+                    const select = document.querySelector(`[data-component="${component}"]`);
+                    if (select) select.value = data.cultureScores[component];
+                });
+            }
+            
+            // Load STAR scores
+            if (data.starScores) {
+                Object.keys(data.starScores).forEach(key => {
+                    const [question, component] = key.split('_');
+                    const questionNum = question.replace('q', '');
+                    const input = document.querySelector(`[data-question="${questionNum}"][data-component="${component}"]`);
+                    if (input) input.value = data.starScores[key];
+                });
+            }
+            
+            // Load knowledge scores
+            if (data.knowledgeScores) {
+                setTimeout(() => {
+                    Object.keys(data.knowledgeScores).forEach(key => {
+                        const questionNum = key.replace('q', '');
+                        const select = document.querySelector(`.knowledge-score-select[data-question="${questionNum}"]`);
+                        if (select) select.value = data.knowledgeScores[key];
+                    });
+                    calculateScores();
+                }, 100);
+            }
+            
+            // Load roleplay scores
+            if (data.roleplayScores) {
+                document.getElementById('questionQuality').value = data.roleplayScores.questionQuality || '';
+                document.getElementById('followupSkills').value = data.roleplayScores.followupSkills || '';
+                document.getElementById('objectionHandling').value = data.roleplayScores.objectionHandling || '';
+            }
+            
+            calculateScores();
+        }
+        
+        function exportData() {
+            collectAllData();
+            const candidateName = assessmentData.candidateInfo.name || 'candidate';
+            const filename = `BeContent_Assessment_${candidateName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
+            
+            const dataStr = JSON.stringify(assessmentData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = filename;
+            link.click();
+            
+            showNotification('Assessment data exported! 💾');
+        }
+        
+        // Candidates Database Functions
+        function goToCandidatesDatabase() {
+            window.open('candidates-database.html', '_blank');
+        }
+        
+        function saveCandidateToDatabase() {
+            if (!window.firebaseDatabase) {
+                showNotification('Firebase not available - cannot save candidate', 'error');
                 return;
             }
             
-            emptyState.style.display = 'none';
-            candidatesData = candidates;
+            collectAllData();
             
-            // Sort candidates by date (newest first)
-            candidates.sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+            // Don't save if no candidate name
+            if (!assessmentData.candidateInfo.name || !assessmentData.candidateInfo.name.trim()) {
+                return;
+            }
             
-            tableBody.innerHTML = '';
+            // Generate candidate ID if not exists
+            if (!currentCandidateId) {
+                currentCandidateId = Date.now().toString() + '_' + Math.random().toString(36).substr(2, 5);
+            }
             
-            candidates.forEach(candidate => {
-                const row = document.createElement('tr');
-                row.onclick = () => editCandidate(candidate.candidateId);
+            // Calculate current scores for saving
+            const cultureScore = calculateCultureScore();
+            const knowledgePercentage = updateKnowledgeScore();
+            
+            let starTotal = 0;
+            const starScores = document.querySelectorAll('.star-score');
+            starScores.forEach(input => {
+                starTotal += parseInt(input.value) || 0;
+            });
+            
+            const questionQuality = parseInt(document.getElementById('questionQuality').value) || 0;
+            const followupSkills = parseInt(document.getElementById('followupSkills').value) || 0;
+            const objectionHandling = parseInt(document.getElementById('objectionHandling').value) || 0;
+            const roleplayTotal = questionQuality + followupSkills + objectionHandling;
+            
+            const combinedWeightedScore = Math.round(
+                (cultureScore * 0.4) + 
+                (starTotal * 0.3) + 
+                (knowledgePercentage * 0.3)
+            );
+            
+            // Determine final status
+            let finalStatus = 'NOT QUALIFIED';
+            if (combinedWeightedScore >= 80) {
+                if (roleplayTotal >= 80) {
+                    finalStatus = 'HIRED ✅';
+                } else if (roleplayTotal > 0) {
+                    finalStatus = 'NOT HIRED';
+                } else {
+                    finalStatus = 'PENDING ROLE-PLAY';
+                }
+            }
+            
+            const candidateRecord = {
+                ...assessmentData,
+                candidateId: currentCandidateId,
+                scores: {
+                    culture: cultureScore,
+                    communication: starTotal,
+                    content: knowledgePercentage,
+                    combined: combinedWeightedScore,
+                    roleplay: roleplayTotal,
+                    finalStatus: finalStatus
+                },
+                savedAt: new Date().toISOString(),
+                savedBy: currentUser ? currentUser.name : 'Unknown'
+            };
+            
+            const candidateRef = window.firebaseRef(window.firebaseDatabase, `candidates/${currentCandidateId}`);
+            window.firebaseSet(candidateRef, candidateRecord);
+            
+            showNotification(`Candidate ${assessmentData.candidateInfo.name} saved to database! 💾`);
+        }
+        
+        function loadCandidateFromDatabase(candidateId) {
+            if (!window.firebaseDatabase) {
+                showNotification('Firebase not available', 'error');
+                return;
+            }
+            
+            currentCandidateId = candidateId;
+            const candidateRef = window.firebaseRef(window.firebaseDatabase, `candidates/${candidateId}`);
+            
+            window.firebaseOnValue(candidateRef, (snapshot) => {
+                const candidateData = snapshot.val();
+                if (candidateData) {
+                    loadAllData(candidateData);
+                    showNotification(`Loaded candidate: ${candidateData.candidateInfo.name}`, 'success');
+                }
+            });
+        }
+        
+        function checkForCandidateIdInURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const candidateId = urlParams.get('candidateId');
+            
+            if (candidateId) {
+                loadCandidateFromDatabase(candidateId);
+            }
+        }
+        
+        // Question generation functions
+        function generateStarQuestions() {
+            const container = document.getElementById('starQuestions');
+            for (let i = 1; i <= 5; i++) {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'subsection';
+                questionDiv.innerHTML = `
+                    <h3>Question ${i}</h3>
+                    <div class="question-grid">
+                        <div class="star-component">
+                            <h4>Situation</h4>
+                            <input type="number" class="score-input star-score" data-question="${i}" data-component="situation" max="5" min="1" placeholder="1-5">
+                        </div>
+                        <div class="star-component">
+                            <h4>Task</h4>
+                            <input type="number" class="score-input star-score" data-question="${i}" data-component="task" max="5" min="1" placeholder="1-5">
+                        </div>
+                        <div class="star-component">
+                            <h4>Action</h4>
+                            <input type="number" class="score-input star-score" data-question="${i}" data-component="action" max="5" min="1" placeholder="1-5">
+                        </div>
+                        <div class="star-component">
+                            <h4>Result</h4>
+                            <input type="number" class="score-input star-score" data-question="${i}" data-component="result" max="5" min="1" placeholder="1-5">
+                        </div>
+                    </div>
+                    <div class="question-total">
+                        <strong>Question ${i} Total: <span id="q${i}Total">0</span>/20</strong>
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+            }
+        }
+        
+        function generateKnowledgeQuestions() {
+            const container = document.getElementById('knowledgeQuestions');
+            container.innerHTML = '';
+            
+            const selectedQuestions = assessmentData.selectedQuestions || [];
+            
+            selectedQuestions.forEach(questionId => {
+                const questionData = knowledgeQuestions[questionId];
+                if (!questionData) return;
                 
-                const formatDate = (dateString) => {
-                    if (!dateString) return '-';
-                    if (candidate.candidateInfo.date) {
-                        return new Date(candidate.candidateInfo.date).toLocaleDateString();
-                    }
-                    return new Date(dateString).toLocaleDateString();
-                };
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'knowledge-question-detail';
                 
-                const formatScore = (score) => {
-                    return score || score === 0 ? `${score}` : '-';
-                };
+                let criteriaHTML = '';
                 
-                const getStatusClass = (status) => {
-                    if (status.includes('HIRED ✅')) return 'status-hired';
-                    if (status.includes('NOT HIRED')) return 'status-not-hired';
-                    if (status.includes('NOT QUALIFIED')) return 'status-not-qualified';
-                    return 'status-pending';
-                };
+                if (questionData.options) {
+                    criteriaHTML = `
+                        <div class="criteria-section">
+                            <h5>✅ Correct Answer (5 points):</h5>
+                            <div class="criteria-list">
+                                <ul><li><strong>${questionData.correctAnswer}</strong></li></ul>
+                            </div>
+                        </div>
+                        <div class="criteria-section wrong">
+                            <h5>❌ Wrong Answers (0 points):</h5>
+                            <div class="criteria-list wrong">
+                                <ul>
+                                    ${questionData.wrongAnswers.map(answer => `<li>${answer}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    criteriaHTML = `
+                        <div class="criteria-section">
+                            <h5>✅ Must Mention (5 points):</h5>
+                            <div class="criteria-list">
+                                <ul>
+                                    ${questionData.correctAnswers.map(answer => `<li>${answer}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="criteria-section wrong">
+                            <h5>❌ Wrong Answers (0 points):</h5>
+                            <div class="criteria-list wrong">
+                                <ul>
+                                    ${questionData.wrongAnswers.map(answer => `<li>${answer}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                }
                 
-                row.innerHTML = `
-                    <td>
-                        <div class="candidate-name">${candidate.candidateInfo.name || 'Unnamed Candidate'}</div>
-                    </td>
-                    <td class="date-cell">${formatDate(candidate.savedAt)}</td>
-                    <td>${candidate.candidateInfo.interviewer || '-'}</td>
-                    <td class="score-cell">${formatScore(candidate.scores?.culture)}/100</td>
-                    <td class="score-cell">${formatScore(candidate.scores?.communication)}/100</td>
-                    <td class="score-cell">${formatScore(candidate.scores?.content)}/100</td>
-                    <td class="score-cell"><strong>${formatScore(candidate.scores?.combined)}/100</strong></td>
-                    <td class="score-cell">${formatScore(candidate.scores?.roleplay)}/100</td>
-                    <td>
-                        <span class="status-badge ${getStatusClass(candidate.scores?.finalStatus || 'PENDING')}">
-                            ${candidate.scores?.finalStatus || 'PENDING'}
-                        </span>
-                    </td>
+                questionDiv.innerHTML = `
+                    <div class="knowledge-header">
+                        <h4>Q${questionId}: ${questionData.title}</h4>
+                    </div>
+                    <div class="knowledge-prompt">
+                        <strong>Question:</strong> "${questionData.question}"
+                    </div>
+                    <div class="scoring-criteria-knowledge">
+                        ${criteriaHTML}
+                    </div>
+                    <div class="knowledge-score-selector">
+                        <label>Score:</label>
+                        <select class="knowledge-score-select" data-question="${questionId}">
+                            <option value="">Select Score</option>
+                            <option value="0">0 - Incorrect/Poor Answer</option>
+                            <option value="5">5 - Correct Answer</option>
+                        </select>
+                    </div>
                 `;
                 
-                tableBody.appendChild(row);
+                container.appendChild(questionDiv);
             });
+            
+            updateKnowledgeScore();
         }
         
-        function updateStats(candidates) {
-            const total = candidates.length;
-            let hired = 0;
-            let rejected = 0;
-            let pending = 0;
+        function handleQuestionSelection() {
+            const checkboxes = document.querySelectorAll('.question-checkbox');
+            const selectedQuestions = [];
             
-            candidates.forEach(candidate => {
-                const status = candidate.scores?.finalStatus || 'PENDING';
-                if (status.includes('HIRED ✅')) {
-                    hired++;
-                } else if (status.includes('NOT HIRED') || status.includes('NOT QUALIFIED')) {
-                    rejected++;
+            checkboxes.forEach(checkbox => {
+                const label = checkbox.closest('label');
+                if (checkbox.checked) {
+                    selectedQuestions.push(parseInt(checkbox.dataset.question));
+                    label.classList.add('selected');
                 } else {
-                    pending++;
+                    label.classList.remove('selected');
                 }
             });
             
-            document.getElementById('totalCandidates').textContent = total;
-            document.getElementById('hiredCount').textContent = hired;
-            document.getElementById('rejectedCount').textContent = rejected;
-            document.getElementById('pendingCount').textContent = pending;
-        }
-        
-        function showEmptyState() {
-            const tableBody = document.getElementById('candidatesTableBody');
-            const emptyState = document.getElementById('emptyState');
-            
-            tableBody.innerHTML = '';
-            emptyState.style.display = 'block';
-            
-            // Reset stats
-            document.getElementById('totalCandidates').textContent = '0';
-            document.getElementById('hiredCount').textContent = '0';
-            document.getElementById('rejectedCount').textContent = '0';
-            document.getElementById('pendingCount').textContent = '0';
-        }
-        
-        function showLoadingState() {
-            const tableBody = document.getElementById('candidatesTableBody');
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="9" style="text-align: center; padding: 40px;">
-                        <div class="loading-spinner"></div>
-                        Loading candidates...
-                    </td>
-                </tr>
-            `;
-        }
-        
-        function editCandidate(candidateId) {
-            if (!candidateId) {
-                showNotification('Candidate ID not found', 'error');
-                return;
+            if (selectedQuestions.length > 6) {
+                const lastCheckbox = Array.from(checkboxes).find(cb => 
+                    parseInt(cb.dataset.question) === selectedQuestions[selectedQuestions.length - 1]
+                );
+                lastCheckbox.checked = false;
+                lastCheckbox.closest('label').classList.remove('selected');
+                selectedQuestions.pop();
+                showNotification('Maximum 6 questions allowed', 'warning');
             }
             
-            // Open assessment page with candidate ID parameter
-            const assessmentUrl = `paste.txt?candidateId=${candidateId}`;
-            window.open(assessmentUrl, '_blank');
+            assessmentData.selectedQuestions = selectedQuestions;
+            document.getElementById('selectedCount').textContent = selectedQuestions.length;
+            
+            generateKnowledgeQuestions();
+            pushToFirebase();
         }
         
-        function refreshData() {
-            showLoadingState();
-            if (window.loadCandidatesData) {
-                window.loadCandidatesData();
-                showNotification('Data refreshed!');
+        // Scoring functions
+        function updateKnowledgeScore() {
+            let totalScore = 0;
+            const maxPossibleScore = assessmentData.selectedQuestions.length * 5;
+            
+            const knowledgeSelects = document.querySelectorAll('.knowledge-score-select');
+            knowledgeSelects.forEach(select => {
+                const score = parseInt(select.value) || 0;
+                totalScore += score;
+            });
+            
+            const percentage = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0;
+            
+            document.getElementById('knowledgeTotalScore').textContent = `${totalScore}/${maxPossibleScore}`;
+            document.getElementById('knowledgePercentage').textContent = percentage;
+            
+            return percentage;
+        }
+        
+        function calculateCultureScore() {
+            let totalScore = 0;
+            let maxPossibleScore = 110;
+            
+            const cultureSelects = document.querySelectorAll('.culture-score-select');
+            cultureSelects.forEach(select => {
+                const score = parseInt(select.value) || 0;
+                totalScore += score;
+            });
+            
+            document.getElementById('cultureDetailedScore').textContent = totalScore;
+            
+            const normalizedScore = Math.round((totalScore / maxPossibleScore) * 100);
+            document.getElementById('cultureNormalizedScore').textContent = normalizedScore;
+            
+            return normalizedScore;
+        }
+        
+        function calculateScores() {
+            const cultureScore = calculateCultureScore();
+            
+            let starTotal = 0;
+            const starScores = document.querySelectorAll('.star-score');
+            starScores.forEach(input => {
+                const value = parseInt(input.value) || 0;
+                starTotal += value;
+            });
+            
+            for (let i = 1; i <= 5; i++) {
+                let questionTotal = 0;
+                const questionInputs = document.querySelectorAll(`[data-question="${i}"].star-score`);
+                questionInputs.forEach(input => {
+                    questionTotal += parseInt(input.value) || 0;
+                });
+                const totalElement = document.getElementById(`q${i}Total`);
+                if (totalElement) totalElement.textContent = questionTotal;
+            }
+            
+            const knowledgePercentage = updateKnowledgeScore();
+            
+            const culturePercentage = cultureScore;
+            const communicationPercentage = starTotal;
+            const contentPercentage = knowledgePercentage;
+            
+            const combinedWeightedScore = Math.round(
+                (culturePercentage * 0.4) + 
+                (communicationPercentage * 0.3) + 
+                (contentPercentage * 0.3)
+            );
+            
+            document.getElementById('cultureScore').textContent = culturePercentage;
+            document.getElementById('communicationScore').textContent = communicationPercentage;
+            document.getElementById('contentScore').textContent = contentPercentage;
+            document.getElementById('combinedWeightedScore').textContent = combinedWeightedScore;
+            
+            const isQualified = combinedWeightedScore >= 80;
+            updateQualificationStatus(isQualified, combinedWeightedScore);
+            
+            const roleplaySection = document.getElementById('roleplaySection');
+            if (isQualified) {
+                roleplaySection.classList.remove('disabled');
+                calculateRolePlayScore();
             } else {
-                showNotification('Cannot refresh - Firebase not connected', 'error');
+                roleplaySection.classList.add('disabled');
+                document.getElementById('roleplayScores').style.display = 'none';
+                generateRecommendation(false, combinedWeightedScore, 0);
             }
         }
         
-        // Initialize the page
-        function init() {
-            showLoadingState();
+        function calculateRolePlayScore() {
+            const questionQuality = parseInt(document.getElementById('questionQuality').value) || 0;
+            const followupSkills = parseInt(document.getElementById('followupSkills').value) || 0;
+            const objectionHandling = parseInt(document.getElementById('objectionHandling').value) || 0;
+            const roleplayTotal = questionQuality + followupSkills + objectionHandling;
             
-            // If Firebase is not available after 2 seconds, show error
-            setTimeout(() => {
-                if (!window.firebaseDatabase) {
-                    updateConnectionStatus(false, 'Firebase Not Available');
-                    showEmptyState();
-                    showNotification('Cannot connect to database', 'error');
-                }
-            }, 2000);
+            document.getElementById('roleplayTotal').textContent = roleplayTotal;
+            document.getElementById('roleplayScores').style.display = 'block';
+            
+            const combinedScore = parseInt(document.getElementById('combinedWeightedScore').textContent);
+            generateRecommendation(true, combinedScore, roleplayTotal);
         }
         
-        function updateConnectionStatus(connected, text) {
-            const statusDot = document.getElementById('connectionStatus');
-            const statusText = document.getElementById('connectionText');
+        function updateQualificationStatus(isQualified, score) {
+            const statusDiv = document.getElementById('qualificationStatus');
+            const textDiv = document.getElementById('qualificationText');
             
-            if (connected) {
-                statusDot.classList.add('connected');
-                statusText.textContent = text;
-            } else {
-                statusDot.classList.remove('connected');
-                statusText.textContent = text;
-            }
-        }
-        
-        // Start the application
-        init();
-    </script>
-</body>
-</html>
+            if (isQualified) {
+                statusDiv.className = 'qualification-status qualified';
+                textDiv.textContent = `✅ QUALIFIED (${score}/100)
