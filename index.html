@@ -2569,3 +2569,44 @@
             if (isQualified) {
                 statusDiv.className = 'qualification-status qualified';
                 textDiv.textContent = `✅ QUALIFIED (${score}/100)
+                } else {
+                statusDiv.className = 'qualification-status not-qualified';
+                textDiv.textContent = `❌ NOT QUALIFIED (${score}/100)`;
+            }
+        }
+        
+        function generateRecommendation(qualified, combinedScore, roleplayScore) {
+            const textDiv = document.getElementById('recommendationText');
+            const finalStatusDiv = document.getElementById('finalStatus');
+            
+            let recommendation = '';
+            let finalStatus = '';
+            
+            if (!qualified) {
+                recommendation = `Score: ${combinedScore}/100. Did not meet the 80+ threshold for role-play. ${combinedScore < 60 ? 'Significant development needed.' : 'Close to qualification - consider for future opportunities.'}`;
+                finalStatus = 'NOT QUALIFIED';
+            } else if (roleplayScore >= 80) {
+                recommendation = `🎉 Outstanding performance! Combined: ${combinedScore}/100 ✅, Role-play: ${roleplayScore}/100 ✅. Strong cultural fit with excellent practical skills.`;
+                finalStatus = 'HIRED ✅';
+            } else if (roleplayScore > 0) {
+                recommendation = `Combined: ${combinedScore}/100 ✅, Role-play: ${roleplayScore}/100 ❌. Strong foundation but needs practical interview skill development.`;
+                finalStatus = 'NOT HIRED';
+            } else {
+                recommendation = `Qualified with score: ${combinedScore}/100 ✅. Please complete role-play assessment.`;
+                finalStatus = 'PENDING ROLE-PLAY';
+            }
+            
+            textDiv.textContent = recommendation;
+            finalStatusDiv.textContent = finalStatus;
+            
+            // Auto-save candidate when final recommendation is generated
+            if (finalStatus !== 'PENDING ROLE-PLAY') {
+                saveCandidateToDatabase();
+            }
+        }
+        
+        // Start the application
+        init();
+    </script>
+</body>
+</html>
