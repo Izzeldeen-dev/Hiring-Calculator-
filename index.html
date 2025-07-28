@@ -181,11 +181,6 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         
-        .info-item input.editing {
-            border-color: #f59e0b;
-            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
-        }
-        
         .content {
             padding: 40px;
             max-width: none;
@@ -256,12 +251,6 @@
             border: 1px solid #e2e8f0;
         }
         
-        .culture-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-        
         .culture-detailed {
             max-width: none;
         }
@@ -279,23 +268,6 @@
         .culture-question:hover {
             border-color: #3b82f6;
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
-        }
-        
-        .culture-question.editing {
-            border-color: #f59e0b;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
-        }
-        
-        .editing-indicator {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #f59e0b;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 600;
         }
         
         .culture-header {
@@ -406,15 +378,6 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         
-        .culture-score-select.editing {
-            border-color: #f59e0b;
-            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
-        }
-        
-        .culture-score-select option {
-            padding: 8px;
-        }
-        
         .culture-total {
             background: linear-gradient(135deg, #1e293b, #334155);
             color: white;
@@ -423,35 +386,6 @@
             text-align: center;
             font-size: 1.1rem;
             margin-top: 24px;
-        }
-        
-        .culture-component {
-            text-align: center;
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            border: 2px solid #e5e7eb;
-            transition: all 0.2s ease;
-        }
-        
-        .culture-component:hover {
-            border-color: #3b82f6;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        .culture-component h4 {
-            margin-bottom: 8px;
-            color: #1e293b;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-        
-        .culture-weight {
-            font-size: 0.85rem;
-            color: #64748b;
-            margin-bottom: 12px;
-            font-weight: 500;
         }
         
         .question-grid {
@@ -488,17 +422,6 @@
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        
-        .score-input.editing {
-            border-color: #f59e0b;
-            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
-        }
-        
-        .knowledge-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
         }
         
         .knowledge-selector {
@@ -578,11 +501,6 @@
         .knowledge-question-detail:hover {
             border-color: #3b82f6;
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
-        }
-        
-        .knowledge-question-detail.editing {
-            border-color: #f59e0b;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
         }
         
         .knowledge-header {
@@ -687,11 +605,6 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         
-        .knowledge-score-select.editing {
-            border-color: #f59e0b;
-            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
-        }
-        
         .knowledge-total {
             background: linear-gradient(135deg, #f59e0b, #d97706);
             color: white;
@@ -700,24 +613,6 @@
             text-align: center;
             font-size: 1.1rem;
             margin-top: 24px;
-        }
-        
-        .knowledge-question {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            border: 2px solid #e5e7eb;
-            transition: all 0.2s ease;
-        }
-        
-        .knowledge-question:hover {
-            border-color: #3b82f6;
-        }
-        
-        .knowledge-question h4 {
-            margin-bottom: 12px;
-            color: #1e293b;
-            font-weight: 600;
         }
         
         .roleplay-components {
@@ -1053,15 +948,6 @@
         
         .modal-btn.primary:hover {
             background: #2563eb;
-        }
-        
-        .modal-btn.secondary {
-            background: #f1f5f9;
-            color: #64748b;
-        }
-        
-        .modal-btn.secondary:hover {
-            background: #e2e8f0;
         }
         
         .alert {
@@ -1572,15 +1458,9 @@
         };
 
         // Initialize Firebase
-        let app, database, currentSessionRef;
-        let currentUser = null;
-        let sessionId = null;
-        let isConnected = false;
-        let updateTimeout = null;
-
         try {
-            app = initializeApp(firebaseConfig);
-            database = getDatabase(app);
+            const app = initializeApp(firebaseConfig);
+            const database = getDatabase(app);
             
             // Make Firebase available globally
             window.firebaseApp = app;
@@ -1592,23 +1472,13 @@
             window.firebaseRemove = remove;
             
             console.log('✅ Firebase initialized successfully');
-            console.log('🔥 Firebase config:', {
-                projectId: firebaseConfig.projectId,
-                authDomain: firebaseConfig.authDomain,
-                databaseURL: firebaseConfig.databaseURL
-            });
         } catch (error) {
             console.error('❌ Firebase initialization error:', error);
-            console.log('🚨 Firebase setup failed. Check:');
-            console.log('  1. Internet connection');
-            console.log('  2. Firebase project configuration');
-            console.log('  3. Domain authorization in Firebase console');
-            console.log('  4. Current domain:', window.location.origin);
-            // Will be handled by updateConnectionStatus in main script
         }
     </script>
 
     <script>
+        console.log('🚀 Starting BeContent Assessment...');
 
         // Global state management
         let currentUser = null;
@@ -1798,41 +1668,28 @@
                 wrongAnswers: ["Likes", "Comments", "Saved"]
             }
         };
-        
+
+        // Notification system
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
         // Real-time collaboration functions
         function setupConnection() {
-            if (!window.firebaseDatabase) {
-                console.log('❌ Firebase database not available');
-                return;
-            }
+            if (!window.firebaseDatabase) return;
             
-            console.log('🔥 Setting up Firebase connection...');
-            console.log('🌍 Current domain:', window.location.origin);
-            
-            try {
-                const connectedRef = window.firebaseRef(window.firebaseDatabase, '.info/connected');
-                window.firebaseOnValue(connectedRef, (snapshot) => {
-                    isConnected = snapshot.val();
-                    console.log('🔥 Firebase connection status:', isConnected);
-                    updateConnectionStatus(isConnected, isConnected ? 'Connected' : 'Disconnected');
-                    
-                    if (isConnected) {
-                        console.log('✅ Successfully connected to Firebase!');
-                        showNotification('Connected to Firebase database! 🔥', 'success');
-                    } else {
-                        console.log('❌ Firebase connection failed');
-                        showNotification('Firebase connection lost - working in local mode', 'warning');
-                    }
-                }, (error) => {
-                    console.error('❌ Firebase connection error:', error);
-                    updateConnectionStatus(false, 'Connection Error');
-                    showNotification('Firebase connection error - check console for details', 'error');
-                });
-            } catch (error) {
-                console.error('❌ Error setting up Firebase connection:', error);
-                updateConnectionStatus(false, 'Setup Error');
-                showNotification('Firebase setup error - check console for details', 'error');
-            }
+            const connectedRef = window.firebaseRef(window.firebaseDatabase, '.info/connected');
+            window.firebaseOnValue(connectedRef, (snapshot) => {
+                isConnected = snapshot.val();
+                updateConnectionStatus(isConnected, isConnected ? 'Connected' : 'Disconnected');
+            });
         }
         
         function updateConnectionStatus(connected, text) {
@@ -1944,13 +1801,6 @@
                 const users = snapshot.val() || {};
                 updateUserList(users);
             });
-            
-            // Listen for editing indicators
-            const editingRef = window.firebaseRef(window.firebaseDatabase, `sessions/${sessionId}/editing`);
-            window.firebaseOnValue(editingRef, (snapshot) => {
-                const editing = snapshot.val() || {};
-                updateEditingIndicators(editing);
-            });
         }
         
         function updateUserList(users) {
@@ -1968,30 +1818,6 @@
             });
         }
         
-        function updateEditingIndicators(editing) {
-            // Remove all existing indicators
-            document.querySelectorAll('.editing-indicator').forEach(el => el.remove());
-            document.querySelectorAll('.editing').forEach(el => el.classList.remove('editing'));
-            
-            Object.entries(editing).forEach(([userId, fieldId]) => {
-                if (userId === currentUser?.id) return; // Don't show our own editing
-                
-                const element = document.getElementById(fieldId) || document.querySelector(`[data-component="${fieldId}"]`);
-                if (element) {
-                    element.classList.add('editing');
-                    
-                    // Add visual indicator for culture questions
-                    const parent = element.closest('.culture-question, .knowledge-question-detail');
-                    if (parent && !parent.querySelector('.editing-indicator')) {
-                        const indicator = document.createElement('div');
-                        indicator.className = 'editing-indicator';
-                        indicator.textContent = `${Object.values(editing)[0] || 'Someone'} editing`;
-                        parent.appendChild(indicator);
-                    }
-                }
-            });
-        }
-        
         function pushToFirebase() {
             if (!window.firebaseDatabase || !sessionId) return;
             
@@ -2001,17 +1827,6 @@
                 const dataRef = window.firebaseRef(window.firebaseDatabase, `sessions/${sessionId}/data`);
                 window.firebaseSet(dataRef, assessmentData);
             }, 500);
-        }
-        
-        function setFieldEditing(fieldId, isEditing) {
-            if (!window.firebaseDatabase || !sessionId || !currentUser) return;
-            
-            const editingRef = window.firebaseRef(window.firebaseDatabase, `sessions/${sessionId}/editing/${currentUser.id}`);
-            if (isEditing) {
-                window.firebaseSet(editingRef, fieldId);
-            } else {
-                window.firebaseRemove(editingRef);
-            }
         }
         
         function getRandomColor() {
@@ -2050,156 +1865,13 @@
                 });
             }
         }
-        
-        // Notification system
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = `notification ${type}`;
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 4000);
-        }
-        
-        // Data collection and loading functions
-        function collectAllData() {
-            // Collect candidate info
-            assessmentData.candidateInfo = {
-                name: document.getElementById('candidateName').value,
-                date: document.getElementById('interviewDate').value,
-                interviewer: document.getElementById('interviewerName').value
-            };
-            
-            // Collect selected questions
-            const selectedQuestions = [];
-            document.querySelectorAll('.question-checkbox:checked').forEach(checkbox => {
-                selectedQuestions.push(parseInt(checkbox.dataset.question));
-            });
-            assessmentData.selectedQuestions = selectedQuestions;
-            
-            // Collect culture scores (using selects)
-            assessmentData.cultureScores = {};
-            document.querySelectorAll('.culture-score-select').forEach(select => {
-                assessmentData.cultureScores[select.dataset.component] = select.value;
-            });
-            
-            // Collect STAR scores
-            assessmentData.starScores = {};
-            document.querySelectorAll('.star-score').forEach(input => {
-                const key = `q${input.dataset.question}_${input.dataset.component}`;
-                assessmentData.starScores[key] = input.value;
-            });
-            
-            // Collect knowledge scores
-            assessmentData.knowledgeScores = {};
-            document.querySelectorAll('.knowledge-score-select').forEach(select => {
-                assessmentData.knowledgeScores[`q${select.dataset.question}`] = select.value;
-            });
-            
-            // Collect roleplay scores
-            assessmentData.roleplayScores = {
-                questionQuality: document.getElementById('questionQuality').value,
-                followupSkills: document.getElementById('followupSkills').value,
-                objectionHandling: document.getElementById('objectionHandling').value
-            };
-        }
-        
-        function loadAllData(data) {
-            if (!data) return;
-            
-            // Load candidate info
-            if (data.candidateInfo) {
-                document.getElementById('candidateName').value = data.candidateInfo.name || '';
-                document.getElementById('interviewDate').value = data.candidateInfo.date || '';
-                document.getElementById('interviewerName').value = data.candidateInfo.interviewer || '';
-            }
-            
-            // Load selected questions
-            if (data.selectedQuestions) {
-                assessmentData.selectedQuestions = data.selectedQuestions;
-                data.selectedQuestions.forEach(questionId => {
-                    const checkbox = document.querySelector(`[data-question="${questionId}"]`);
-                    if (checkbox) {
-                        checkbox.checked = true;
-                        checkbox.closest('label').classList.add('selected');
-                    }
-                });
-                document.getElementById('selectedCount').textContent = data.selectedQuestions.length;
-                generateKnowledgeQuestions();
-            }
-            
-            // Load culture scores
-            if (data.cultureScores) {
-                Object.keys(data.cultureScores).forEach(component => {
-                    const select = document.querySelector(`[data-component="${component}"]`);
-                    if (select) select.value = data.cultureScores[component];
-                });
-            }
-            
-            // Load STAR scores
-            if (data.starScores) {
-                Object.keys(data.starScores).forEach(key => {
-                    const [question, component] = key.split('_');
-                    const questionNum = question.replace('q', '');
-                    const input = document.querySelector(`[data-question="${questionNum}"][data-component="${component}"]`);
-                    if (input) input.value = data.starScores[key];
-                });
-            }
-            
-            // Load knowledge scores
-            if (data.knowledgeScores) {
-                setTimeout(() => {
-                    Object.keys(data.knowledgeScores).forEach(key => {
-                        const questionNum = key.replace('q', '');
-                        const select = document.querySelector(`.knowledge-score-select[data-question="${questionNum}"]`);
-                        if (select) select.value = data.knowledgeScores[key];
-                    });
-                    calculateScores();
-                }, 100);
-            }
-            
-            // Load roleplay scores
-            if (data.roleplayScores) {
-                document.getElementById('questionQuality').value = data.roleplayScores.questionQuality || '';
-                document.getElementById('followupSkills').value = data.roleplayScores.followupSkills || '';
-                document.getElementById('objectionHandling').value = data.roleplayScores.objectionHandling || '';
-            }
-            
-            calculateScores();
-        }
-        
-        function exportData() {
-            collectAllData();
-            const candidateName = assessmentData.candidateInfo.name || 'candidate';
-            const filename = `BeContent_Assessment_${candidateName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
-            
-            const dataStr = JSON.stringify(assessmentData, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(dataBlob);
-            link.download = filename;
-            link.click();
-            
-            showNotification('Assessment data exported! 💾');
-        }
-        
+
         // Candidates Database Functions
         function goToCandidatesDatabase() {
-            // Check if candidates-database.html exists
-            const currentPath = window.location.pathname;
-            const currentDir = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
-            const databaseUrl = window.location.origin + currentDir + 'candidates-database.html';
-            
-            console.log('Trying to open:', databaseUrl);
-            
-            // Try to open the database page
-            const newWindow = window.open(databaseUrl, '_blank');
-            
+            console.log('🔗 Opening candidates database...');
+            const newWindow = window.open('candidates-database.html', '_blank');
             if (!newWindow) {
-                showNotification('Please allow popups for this site, or check if candidates-database.html exists', 'error');
+                showNotification('Please allow popups or check if candidates-database.html exists', 'error');
             } else {
                 showNotification('Opening candidates database...', 'success');
             }
@@ -2207,28 +1879,21 @@
         
         function saveCandidateToDatabase() {
             if (!window.firebaseDatabase) {
-                console.log('❌ Firebase not available for saving candidate');
-                showNotification('Firebase not available - cannot save candidate. Check connection.', 'error');
+                console.log('❌ Firebase not available for saving');
                 return;
             }
             
             collectAllData();
             
-            // Don't save if no candidate name
             if (!assessmentData.candidateInfo.name || !assessmentData.candidateInfo.name.trim()) {
-                console.log('ℹ️ No candidate name provided - skipping save');
+                console.log('ℹ️ No candidate name - skipping save');
                 return;
             }
             
-            console.log('💾 Saving candidate to database:', assessmentData.candidateInfo.name);
-            
-            // Generate candidate ID if not exists
             if (!currentCandidateId) {
                 currentCandidateId = Date.now().toString() + '_' + Math.random().toString(36).substr(2, 5);
-                console.log('🆔 Generated new candidate ID:', currentCandidateId);
             }
             
-            // Calculate current scores for saving
             const cultureScore = calculateCultureScore();
             const knowledgePercentage = updateKnowledgeScore();
             
@@ -2249,7 +1914,6 @@
                 (knowledgePercentage * 0.3)
             );
             
-            // Determine final status
             let finalStatus = 'NOT QUALIFIED';
             if (combinedWeightedScore >= 80) {
                 if (roleplayTotal >= 80) {
@@ -2276,20 +1940,17 @@
                 savedBy: currentUser ? currentUser.name : 'Unknown'
             };
             
-            console.log('📊 Candidate record prepared:', candidateRecord);
-            
             try {
                 const candidateRef = window.firebaseRef(window.firebaseDatabase, `candidates/${currentCandidateId}`);
                 window.firebaseSet(candidateRef, candidateRecord);
-                
-                console.log('✅ Candidate saved successfully to Firebase');
+                console.log('✅ Candidate saved to Firebase');
                 showNotification(`Candidate ${assessmentData.candidateInfo.name} saved to database! 💾`);
             } catch (error) {
-                console.error('❌ Error saving candidate to Firebase:', error);
-                showNotification('Error saving candidate - check console for details', 'error');
+                console.error('❌ Error saving candidate:', error);
+                showNotification('Error saving candidate', 'error');
             }
         }
-        
+
         function loadCandidateFromDatabase(candidateId) {
             if (!window.firebaseDatabase) {
                 showNotification('Firebase not available', 'error');
@@ -2316,9 +1977,121 @@
                 loadCandidateFromDatabase(candidateId);
             }
         }
+
+        // Data collection and loading functions
+        function collectAllData() {
+            assessmentData.candidateInfo = {
+                name: document.getElementById('candidateName').value,
+                date: document.getElementById('interviewDate').value,
+                interviewer: document.getElementById('interviewerName').value
+            };
+            
+            const selectedQuestions = [];
+            document.querySelectorAll('.question-checkbox:checked').forEach(checkbox => {
+                selectedQuestions.push(parseInt(checkbox.dataset.question));
+            });
+            assessmentData.selectedQuestions = selectedQuestions;
+            
+            assessmentData.cultureScores = {};
+            document.querySelectorAll('.culture-score-select').forEach(select => {
+                assessmentData.cultureScores[select.dataset.component] = select.value;
+            });
+            
+            assessmentData.starScores = {};
+            document.querySelectorAll('.star-score').forEach(input => {
+                const key = `q${input.dataset.question}_${input.dataset.component}`;
+                assessmentData.starScores[key] = input.value;
+            });
+            
+            assessmentData.knowledgeScores = {};
+            document.querySelectorAll('.knowledge-score-select').forEach(select => {
+                assessmentData.knowledgeScores[`q${select.dataset.question}`] = select.value;
+            });
+            
+            assessmentData.roleplayScores = {
+                questionQuality: document.getElementById('questionQuality').value,
+                followupSkills: document.getElementById('followupSkills').value,
+                objectionHandling: document.getElementById('objectionHandling').value
+            };
+        }
         
+        function loadAllData(data) {
+            if (!data) return;
+            
+            if (data.candidateInfo) {
+                document.getElementById('candidateName').value = data.candidateInfo.name || '';
+                document.getElementById('interviewDate').value = data.candidateInfo.date || '';
+                document.getElementById('interviewerName').value = data.candidateInfo.interviewer || '';
+            }
+            
+            if (data.selectedQuestions) {
+                assessmentData.selectedQuestions = data.selectedQuestions;
+                data.selectedQuestions.forEach(questionId => {
+                    const checkbox = document.querySelector(`[data-question="${questionId}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        checkbox.closest('label').classList.add('selected');
+                    }
+                });
+                document.getElementById('selectedCount').textContent = data.selectedQuestions.length;
+                generateKnowledgeQuestions();
+            }
+            
+            if (data.cultureScores) {
+                Object.keys(data.cultureScores).forEach(component => {
+                    const select = document.querySelector(`[data-component="${component}"]`);
+                    if (select) select.value = data.cultureScores[component];
+                });
+            }
+            
+            if (data.starScores) {
+                Object.keys(data.starScores).forEach(key => {
+                    const [question, component] = key.split('_');
+                    const questionNum = question.replace('q', '');
+                    const input = document.querySelector(`[data-question="${questionNum}"][data-component="${component}"]`);
+                    if (input) input.value = data.starScores[key];
+                });
+            }
+            
+            if (data.knowledgeScores) {
+                setTimeout(() => {
+                    Object.keys(data.knowledgeScores).forEach(key => {
+                        const questionNum = key.replace('q', '');
+                        const select = document.querySelector(`.knowledge-score-select[data-question="${questionNum}"]`);
+                        if (select) select.value = data.knowledgeScores[key];
+                    });
+                    calculateScores();
+                }, 100);
+            }
+            
+            if (data.roleplayScores) {
+                document.getElementById('questionQuality').value = data.roleplayScores.questionQuality || '';
+                document.getElementById('followupSkills').value = data.roleplayScores.followupSkills || '';
+                document.getElementById('objectionHandling').value = data.roleplayScores.objectionHandling || '';
+            }
+            
+            calculateScores();
+        }
+        
+        function exportData() {
+            collectAllData();
+            const candidateName = assessmentData.candidateInfo.name || 'candidate';
+            const filename = `BeContent_Assessment_${candidateName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
+            
+            const dataStr = JSON.stringify(assessmentData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = filename;
+            link.click();
+            
+            showNotification('Assessment data exported! 💾');
+        }
+
         // Question generation functions
         function generateStarQuestions() {
+            console.log('📝 Generating STAR questions...');
             const container = document.getElementById('starQuestions');
             for (let i = 1; i <= 5; i++) {
                 const questionDiv = document.createElement('div');
@@ -2349,6 +2122,7 @@
                 `;
                 container.appendChild(questionDiv);
             }
+            console.log('✅ STAR questions generated successfully');
         }
         
         function generateKnowledgeQuestions() {
@@ -2460,7 +2234,7 @@
             generateKnowledgeQuestions();
             pushToFirebase();
         }
-        
+
         // Scoring functions
         function updateKnowledgeScore() {
             let totalScore = 0;
@@ -2568,8 +2342,8 @@
             
             if (isQualified) {
                 statusDiv.className = 'qualification-status qualified';
-                textDiv.textContent = `✅ QUALIFIED (${score}/100)
-                } else {
+                textDiv.textContent = `✅ QUALIFIED (${score}/100)`;
+            } else {
                 statusDiv.className = 'qualification-status not-qualified';
                 textDiv.textContent = `❌ NOT QUALIFIED (${score}/100)`;
             }
@@ -2604,7 +2378,64 @@
                 saveCandidateToDatabase();
             }
         }
-        
+
+        // Initialize the application
+        function init() {
+            console.log('🚀 Initializing BeContent Assessment...');
+            
+            try {
+                generateStarQuestions();
+                console.log('✅ STAR questions generated successfully');
+                
+                checkForCandidateIdInURL();
+                
+                const checkboxes = document.querySelectorAll('.question-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', handleQuestionSelection);
+                });
+                
+                if (window.firebaseDatabase) {
+                    setupConnection();
+                } else {
+                    setTimeout(() => {
+                        if (window.firebaseDatabase) {
+                            setupConnection();
+                        } else {
+                            updateConnectionStatus(false, 'Local Mode - Firebase not available');
+                        }
+                    }, 1000);
+                }
+                
+                setTimeout(() => {
+                    if (!sessionId && !currentCandidateId) {
+                        showJoinModal();
+                    }
+                }, 1500);
+                
+                document.addEventListener('input', (e) => {
+                    calculateScores();
+                    pushToFirebase();
+                });
+                
+                document.addEventListener('change', (e) => {
+                    if (e.target.classList.contains('knowledge-score-select') || 
+                        e.target.classList.contains('culture-score-select')) {
+                        calculateScores();
+                        pushToFirebase();
+                    }
+                });
+                
+                calculateScores();
+                
+                console.log('✅ BeContent Assessment initialized successfully!');
+                showNotification('Assessment loaded successfully! 🎉');
+                
+            } catch (error) {
+                console.error('❌ Error during initialization:', error);
+                showNotification('Error loading assessment', 'error');
+            }
+        }
+
         // Start the application
         init();
     </script>
