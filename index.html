@@ -1591,9 +1591,19 @@
             window.firebaseOnDisconnect = onDisconnect;
             window.firebaseRemove = remove;
             
-            console.log('Firebase initialized successfully');
+            console.log('✅ Firebase initialized successfully');
+            console.log('🔥 Firebase config:', {
+                projectId: firebaseConfig.projectId,
+                authDomain: firebaseConfig.authDomain,
+                databaseURL: firebaseConfig.databaseURL
+            });
         } catch (error) {
-            console.error('Firebase initialization error:', error);
+            console.error('❌ Firebase initialization error:', error);
+            console.log('🚨 Firebase setup failed. Check:');
+            console.log('  1. Internet connection');
+            console.log('  2. Firebase project configuration');
+            console.log('  3. Domain authorization in Firebase console');
+            console.log('  4. Current domain:', window.location.origin);
             // Will be handled by updateConnectionStatus in main script
         }
     </script>
@@ -1791,13 +1801,38 @@
         
         // Real-time collaboration functions
         function setupConnection() {
-            if (!window.firebaseDatabase) return;
+            if (!window.firebaseDatabase) {
+                console.log('❌ Firebase database not available');
+                return;
+            }
             
-            const connectedRef = window.firebaseRef(window.firebaseDatabase, '.info/connected');
-            window.firebaseOnValue(connectedRef, (snapshot) => {
-                isConnected = snapshot.val();
-                updateConnectionStatus(isConnected, isConnected ? 'Connected' : 'Disconnected');
-            });
+            console.log('🔥 Setting up Firebase connection...');
+            console.log('🌍 Current domain:', window.location.origin);
+            
+            try {
+                const connectedRef = window.firebaseRef(window.firebaseDatabase, '.info/connected');
+                window.firebaseOnValue(connectedRef, (snapshot) => {
+                    isConnected = snapshot.val();
+                    console.log('🔥 Firebase connection status:', isConnected);
+                    updateConnectionStatus(isConnected, isConnected ? 'Connected' : 'Disconnected');
+                    
+                    if (isConnected) {
+                        console.log('✅ Successfully connected to Firebase!');
+                        showNotification('Connected to Firebase database! 🔥', 'success');
+                    } else {
+                        console.log('❌ Firebase connection failed');
+                        showNotification('Firebase connection lost - working in local mode', 'warning');
+                    }
+                }, (error) => {
+                    console.error('❌ Firebase connection error:', error);
+                    updateConnectionStatus(false, 'Connection Error');
+                    showNotification('Firebase connection error - check console for details', 'error');
+                });
+            } catch (error) {
+                console.error('❌ Error setting up Firebase connection:', error);
+                updateConnectionStatus(false, 'Setup Error');
+                showNotification('Firebase setup error - check console for details', 'error');
+            }
         }
         
         function updateConnectionStatus(connected, text) {
@@ -2153,12 +2188,27 @@
         
         // Candidates Database Functions
         function goToCandidatesDatabase() {
-            window.open('candidates-database.html', '_blank');
+            // Check if candidates-database.html exists
+            const currentPath = window.location.pathname;
+            const currentDir = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+            const databaseUrl = window.location.origin + currentDir + 'candidates-database.html';
+            
+            console.log('Trying to open:', databaseUrl);
+            
+            // Try to open the database page
+            const newWindow = window.open(databaseUrl, '_blank');
+            
+            if (!newWindow) {
+                showNotification('Please allow popups for this site, or check if candidates-database.html exists', 'error');
+            } else {
+                showNotification('Opening candidates database...', 'success');
+            }
         }
         
         function saveCandidateToDatabase() {
             if (!window.firebaseDatabase) {
-                showNotification('Firebase not available - cannot save candidate', 'error');
+                console.log('❌ Firebase not available for saving candidate');
+                showNotification('Firebase not available - cannot save candidate. Check connection.', 'error');
                 return;
             }
             
@@ -2166,12 +2216,16 @@
             
             // Don't save if no candidate name
             if (!assessmentData.candidateInfo.name || !assessmentData.candidateInfo.name.trim()) {
+                console.log('ℹ️ No candidate name provided - skipping save');
                 return;
             }
+            
+            console.log('💾 Saving candidate to database:', assessmentData.candidateInfo.name);
             
             // Generate candidate ID if not exists
             if (!currentCandidateId) {
                 currentCandidateId = Date.now().toString() + '_' + Math.random().toString(36).substr(2, 5);
+                console.log('🆔 Generated new candidate ID:', currentCandidateId);
             }
             
             // Calculate current scores for saving
@@ -2222,10 +2276,18 @@
                 savedBy: currentUser ? currentUser.name : 'Unknown'
             };
             
-            const candidateRef = window.firebaseRef(window.firebaseDatabase, `candidates/${currentCandidateId}`);
-            window.firebaseSet(candidateRef, candidateRecord);
+            console.log('📊 Candidate record prepared:', candidateRecord);
             
-            showNotification(`Candidate ${assessmentData.candidateInfo.name} saved to database! 💾`);
+            try {
+                const candidateRef = window.firebaseRef(window.firebaseDatabase, `candidates/${currentCandidateId}`);
+                window.firebaseSet(candidateRef, candidateRecord);
+                
+                console.log('✅ Candidate saved successfully to Firebase');
+                showNotification(`Candidate ${assessmentData.candidateInfo.name} saved to database! 💾`);
+            } catch (error) {
+                console.error('❌ Error saving candidate to Firebase:', error);
+                showNotification('Error saving candidate - check console for details', 'error');
+            }
         }
         
         function loadCandidateFromDatabase(candidateId) {
