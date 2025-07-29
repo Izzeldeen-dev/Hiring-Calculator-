@@ -381,6 +381,29 @@
             color: #3b82f6;
         }
         
+        .delete-btn {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            padding: 6px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .delete-btn:hover {
+            background: #fecaca;
+            transform: scale(1.1);
+        }
+        
+        .delete-btn:active {
+            transform: scale(0.95);
+        }
+        
         @media (max-width: 768px) {
             .main-container {
                 padding: 20px;
@@ -478,6 +501,7 @@
                 </div>
                 <div class="header-actions">
                     <button class="action-btn btn-secondary" onclick="exportAllData()">📥 Export All</button>
+                    <button class="action-btn btn-secondary" onclick="deleteAllCandidates()" style="background: #fee2e2; color: #dc2626;">🗑️ Delete All</button>
                     <a href="index.html" class="action-btn btn-primary">➕ New Assessment</a>
                 </div>
             </div>
@@ -519,6 +543,7 @@
                                 Final Status
                                 <span class="sort-indicator" id="sort-status">↕</span>
                             </th>
+                            <th style="width: 100px; text-align: center;">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="candidatesTableBody">
@@ -542,7 +567,7 @@
     <script type="module">
         // Import Firebase functions
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getDatabase, ref, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
         // Your Firebase configuration
         const firebaseConfig = {
@@ -568,6 +593,7 @@
             window.firebaseDatabase = database;
             window.firebaseRef = ref;
             window.firebaseOnValue = onValue;
+            window.firebaseRemove = remove;
             
             console.log('✅ Firebase initialized successfully');
             setupConnection();
@@ -694,6 +720,11 @@
                         <span class="status-badge ${getStatusClass(candidate.scores?.finalStatus)}">
                             ${candidate.scores?.finalStatus || 'PENDING'}
                         </span>
+                    </td>
+                    <td style="text-align: center;">
+                        <button class="delete-btn" onclick="deleteCandidate('${candidate.candidateId}', '${(candidate.candidateInfo?.name || 'Unnamed').replace(/'/g, "\\'")}', event)" title="Delete candidate">
+                            🗑️
+                        </button>
                     </td>
                 `;
                 
@@ -825,12 +856,60 @@
             const tableBody = document.getElementById('candidatesTableBody');
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="9" style="text-align: center; padding: 40px;">
+                    <td colspan="10" style="text-align: center; padding: 40px;">
                         <div class="loading-spinner"></div>
                         Loading candidates...
                     </td>
                 </tr>
             `;
+        }
+        
+        function deleteCandidate(candidateId, candidateName, event) {
+            // Stop the row click event from firing
+            event.stopPropagation();
+            
+            if (!candidateId) {
+                showNotification('Cannot delete: Candidate ID not found', 'error');
+                return;
+            }
+            
+            // Confirm deletion
+            const confirmMessage = `Are you sure you want to DELETE this candidate?\n\n📋 Name: ${candidateName}\n🆔 ID: ${candidateId}\n\n⚠️ This action cannot be undone!`;
+            
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+            
+            console.log('🗑️ Deleting candidate:', candidateId, candidateName);
+            
+            if (!window.firebaseDatabase || !window.firebaseRemove) {
+                showNotification('Database not available', 'error');
+                return;
+            }
+            
+            try {
+                const candidateRef = window.firebaseRef(window.firebaseDatabase, `candidates/${candidateId}`);
+                
+                window.firebaseRemove(candidateRef).then(() => {
+                    console.log('✅ Candidate deleted successfully');
+                    showNotification(`${candidateName} deleted successfully! 🗑️`, 'success');
+                    
+                    // Refresh the data to update the table
+                    setTimeout(() => {
+                        if (window.loadCandidatesData) {
+                            window.loadCandidatesData();
+                        }
+                    }, 500);
+                    
+                }).catch((error) => {
+                    console.error('❌ Error deleting candidate:', error);
+                    showNotification('Error deleting candidate', 'error');
+                });
+                
+            } catch (error) {
+                console.error('❌ Error in delete function:', error);
+                showNotification('Error deleting candidate', 'error');
+            }
         }
         
         function editCandidate(candidateId) {
@@ -859,6 +938,49 @@
                 showNotification('Data refreshed successfully! 🔄');
             } else {
                 showNotification('Cannot refresh - database not connected', 'error');
+            }
+        }
+        
+        function deleteAllCandidates() {
+            if (!candidatesData || candidatesData.length === 0) {
+                showNotification('No candidates to delete', 'error');
+                return;
+            }
+            
+            const confirmMessage = `⚠️ DANGER: DELETE ALL CANDIDATES?\n\nThis will permanently delete ALL ${candidatesData.length} candidates from the database.\n\n🚨 THIS CANNOT BE UNDONE! 🚨\n\nType "DELETE ALL" to confirm:`;
+            
+            const userInput = prompt(confirmMessage);
+            
+            if (userInput !== "DELETE ALL") {
+                showNotification('Deletion cancelled', 'success');
+                return;
+            }
+            
+            console.log('🗑️ Deleting all candidates...');
+            
+            if (!window.firebaseDatabase || !window.firebaseRemove) {
+                showNotification('Database not available', 'error');
+                return;
+            }
+            
+            try {
+                const candidatesRef = window.firebaseRef(window.firebaseDatabase, 'candidates');
+                
+                window.firebaseRemove(candidatesRef).then(() => {
+                    console.log('✅ All candidates deleted successfully');
+                    showNotification(`All ${candidatesData.length} candidates deleted! 🗑️`, 'success');
+                    
+                    // Clear the table immediately
+                    showEmptyState();
+                    
+                }).catch((error) => {
+                    console.error('❌ Error deleting all candidates:', error);
+                    showNotification('Error deleting all candidates', 'error');
+                });
+                
+            } catch (error) {
+                console.error('❌ Error in delete all function:', error);
+                showNotification('Error deleting all candidates', 'error');
             }
         }
         
