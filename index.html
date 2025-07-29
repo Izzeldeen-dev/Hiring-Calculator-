@@ -1520,13 +1520,45 @@
             console.log('Current candidate ID:', currentCandidateId);
             console.log('Assessment data:', assessmentData);
             
+            // Check if form elements exist
+            console.log('Form elements check:');
+            console.log('- Culture selects:', document.querySelectorAll('.culture-score-select').length);
+            console.log('- STAR inputs:', document.querySelectorAll('.star-score').length);
+            console.log('- Knowledge selects:', document.querySelectorAll('.knowledge-score-select').length);
+            console.log('- Knowledge checkboxes:', document.querySelectorAll('.question-checkbox').length);
+            
             const urlParams = new URLSearchParams(window.location.search);
             const candidateId = urlParams.get('candidateId');
             
-            if (candidateId) {
-                alert(`DEBUG:\nURL: ${window.location.href}\nCandidate ID: ${candidateId}\nFirebase: ${!!window.firebaseDatabase}\nCurrent ID: ${currentCandidateId}`);
+            if (candidateId && window.firebaseDatabase) {
+                // Try to load candidate data directly for debugging
+                const candidateRef = window.firebaseRef(window.firebaseDatabase, `candidates/${candidateId}`);
+                window.firebaseOnValue(candidateRef, (snapshot) => {
+                    const candidateData = snapshot.val();
+                    console.log('🔍 RAW CANDIDATE DATA FROM FIREBASE:', candidateData);
+                    
+                    let debugMessage = `DEBUG INFO:\n`;
+                    debugMessage += `URL: ${window.location.href}\n`;
+                    debugMessage += `Candidate ID: ${candidateId}\n`;
+                    debugMessage += `Firebase: ${!!window.firebaseDatabase}\n`;
+                    debugMessage += `Current ID: ${currentCandidateId}\n\n`;
+                    
+                    if (candidateData) {
+                        debugMessage += `CANDIDATE DATA FOUND:\n`;
+                        debugMessage += `Name: ${candidateData.candidateInfo?.name || 'N/A'}\n`;
+                        debugMessage += `Culture Scores: ${JSON.stringify(candidateData.cultureScores || {})}\n`;
+                        debugMessage += `STAR Scores: ${JSON.stringify(candidateData.starScores || {})}\n`;
+                        debugMessage += `Knowledge Scores: ${JSON.stringify(candidateData.knowledgeScores || {})}\n`;
+                        debugMessage += `Selected Questions: ${JSON.stringify(candidateData.selectedQuestions || [])}\n`;
+                        debugMessage += `Roleplay Scores: ${JSON.stringify(candidateData.roleplayScores || {})}\n`;
+                    } else {
+                        debugMessage += `NO CANDIDATE DATA FOUND!`;
+                    }
+                    
+                    alert(debugMessage);
+                });
             } else {
-                alert('No candidate ID found in URL');
+                alert(`DEBUG:\nURL: ${window.location.href}\nCandidate ID: ${candidateId}\nFirebase: ${!!window.firebaseDatabase}\nCurrent ID: ${currentCandidateId}\n\nNo candidate ID found or Firebase not available`);
             }
         }
 
@@ -1731,7 +1763,7 @@
             
             console.log('📥 Loading all candidate data:', data);
             
-            // Load candidate info
+            // Load candidate info first
             if (data.candidateInfo) {
                 console.log('📝 Loading candidate info:', data.candidateInfo);
                 document.getElementById('candidateName').value = data.candidateInfo.name || '';
@@ -1739,80 +1771,112 @@
                 document.getElementById('interviewerName').value = data.candidateInfo.interviewer || '';
             }
             
-            // Load selected knowledge questions first
+            // Load culture scores immediately
+            if (data.cultureScores) {
+                console.log('🏛️ Loading culture scores:', data.cultureScores);
+                Object.keys(data.cultureScores).forEach(component => {
+                    const select = document.querySelector(`[data-component="${component}"]`);
+                    if (select) {
+                        if (data.cultureScores[component]) {
+                            select.value = data.cultureScores[component];
+                            console.log(`✅ Set culture ${component} to ${data.cultureScores[component]}`);
+                        } else {
+                            console.log(`⚠️ No value for culture ${component}`);
+                        }
+                    } else {
+                        console.log(`❌ Could not find culture select for ${component}`);
+                    }
+                });
+            }
+            
+            // Load STAR scores immediately
+            if (data.starScores) {
+                console.log('⭐ Loading STAR scores:', data.starScores);
+                Object.keys(data.starScores).forEach(key => {
+                    const [question, component] = key.split('_');
+                    const questionNum = question.replace('q', '');
+                    const input = document.querySelector(`[data-question="${questionNum}"][data-component="${component}"].star-score`);
+                    if (input) {
+                        if (data.starScores[key]) {
+                            input.value = data.starScores[key];
+                            console.log(`✅ Set STAR ${key} to ${data.starScores[key]}`);
+                        } else {
+                            console.log(`⚠️ No value for STAR ${key}`);
+                        }
+                    } else {
+                        console.log(`❌ Could not find STAR input for ${key}`);
+                    }
+                });
+            }
+            
+            // Load roleplay scores immediately
+            if (data.roleplayScores) {
+                console.log('🎭 Loading roleplay scores:', data.roleplayScores);
+                const questionQualityEl = document.getElementById('questionQuality');
+                const followupSkillsEl = document.getElementById('followupSkills');
+                const objectionHandlingEl = document.getElementById('objectionHandling');
+                
+                if (questionQualityEl) questionQualityEl.value = data.roleplayScores.questionQuality || '';
+                if (followupSkillsEl) followupSkillsEl.value = data.roleplayScores.followupSkills || '';
+                if (objectionHandlingEl) objectionHandlingEl.value = data.roleplayScores.objectionHandling || '';
+                
+                console.log('✅ Roleplay scores loaded');
+            }
+            
+            // Handle knowledge questions with proper timing
             if (data.selectedQuestions && data.selectedQuestions.length > 0) {
                 console.log('❓ Loading selected questions:', data.selectedQuestions);
                 assessmentData.selectedQuestions = data.selectedQuestions;
                 
                 // Check the checkboxes
                 data.selectedQuestions.forEach(questionId => {
-                    const checkbox = document.querySelector(`[data-question="${questionId}"]`);
+                    const checkbox = document.querySelector(`.question-checkbox[data-question="${questionId}"]`);
                     if (checkbox) {
                         checkbox.checked = true;
                         checkbox.closest('label').classList.add('selected');
+                        console.log(`✅ Checked question ${questionId}`);
+                    } else {
+                        console.log(`❌ Could not find checkbox for question ${questionId}`);
                     }
                 });
                 
                 // Update counter and generate questions
                 document.getElementById('selectedCount').textContent = data.selectedQuestions.length;
                 generateKnowledgeQuestions();
-            }
-            
-            // Load culture scores
-            if (data.cultureScores) {
-                console.log('🏛️ Loading culture scores:', data.cultureScores);
-                Object.keys(data.cultureScores).forEach(component => {
-                    const select = document.querySelector(`[data-component="${component}"]`);
-                    if (select && data.cultureScores[component]) {
-                        select.value = data.cultureScores[component];
-                        console.log(`Set ${component} to ${data.cultureScores[component]}`);
-                    }
-                });
-            }
-            
-            // Load STAR scores
-            if (data.starScores) {
-                console.log('⭐ Loading STAR scores:', data.starScores);
-                Object.keys(data.starScores).forEach(key => {
-                    const [question, component] = key.split('_');
-                    const questionNum = question.replace('q', '');
-                    const input = document.querySelector(`[data-question="${questionNum}"][data-component="${component}"]`);
-                    if (input && data.starScores[key]) {
-                        input.value = data.starScores[key];
-                        console.log(`Set STAR ${key} to ${data.starScores[key]}`);
-                    }
-                });
-            }
-            
-            // Load knowledge scores (with delay to ensure questions are generated)
-            if (data.knowledgeScores) {
-                console.log('🧠 Loading knowledge scores:', data.knowledgeScores);
+                
+                // Load knowledge scores after questions are generated
+                if (data.knowledgeScores) {
+                    console.log('🧠 Loading knowledge scores:', data.knowledgeScores);
+                    setTimeout(() => {
+                        Object.keys(data.knowledgeScores).forEach(key => {
+                            const questionNum = key.replace('q', '');
+                            const select = document.querySelector(`.knowledge-score-select[data-question="${questionNum}"]`);
+                            if (select) {
+                                if (data.knowledgeScores[key]) {
+                                    select.value = data.knowledgeScores[key];
+                                    console.log(`✅ Set knowledge ${key} to ${data.knowledgeScores[key]}`);
+                                } else {
+                                    console.log(`⚠️ No value for knowledge ${key}`);
+                                }
+                            } else {
+                                console.log(`❌ Could not find knowledge select for ${key}`);
+                            }
+                        });
+                        
+                        // Calculate scores after knowledge scores are loaded
+                        setTimeout(() => {
+                            calculateScores();
+                            console.log('✅ All candidate data loaded and scores calculated');
+                        }, 100);
+                    }, 800);
+                }
+            } else {
+                // No knowledge questions, just calculate scores
                 setTimeout(() => {
-                    Object.keys(data.knowledgeScores).forEach(key => {
-                        const questionNum = key.replace('q', '');
-                        const select = document.querySelector(`.knowledge-score-select[data-question="${questionNum}"]`);
-                        if (select && data.knowledgeScores[key]) {
-                            select.value = data.knowledgeScores[key];
-                            console.log(`Set knowledge ${key} to ${data.knowledgeScores[key]}`);
-                        }
-                    });
                     calculateScores();
-                }, 500);
+                    console.log('✅ Candidate data loaded (no knowledge questions)');
+                }, 200);
             }
-            
-            // Load roleplay scores
-            if (data.roleplayScores) {
-                console.log('🎭 Loading roleplay scores:', data.roleplayScores);
-                document.getElementById('questionQuality').value = data.roleplayScores.questionQuality || '';
-                document.getElementById('followupSkills').value = data.roleplayScores.followupSkills || '';
-                document.getElementById('objectionHandling').value = data.roleplayScores.objectionHandling || '';
-            }
-            
-            // Calculate scores after everything is loaded
-            setTimeout(() => {
-                calculateScores();
-                console.log('✅ All candidate data loaded and scores calculated');
-            }, 600);
         }
         
         function exportData() {
