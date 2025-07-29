@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeContent Candidates Database</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            color: #1e293b;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            border-bottom: 3px solid #3b82f6;
+            position: relative;
+        }
+        
+        .header-controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .header-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .company-logo {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+        
+        .connection-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.connected {
+            background: #10b981;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .stat-card.hired .stat-value {
+            color: #059669;
+        }
+        
+        .stat-card.rejected .stat-value {
+            color: #dc2626;
+        }
+        
+        .stat-card.pending .stat-value {
+            color: #0891b2;
+        }
+        
+        .candidates-section {
+            background: white;
+            border-radius: 16px;
+            padding: 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-header h2 {
+            color: #1e293b;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .section-subtitle {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+        
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .candidates-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .candidates-table th {
+            background: #f1f5f9;
+            padding: 16px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .candidates-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+            font-size: 0.9rem;
+        }
+        
+        .candidates-table tr {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .candidates-table tr:hover {
+            background: #f8fafc;
+        }
+        
+        .candidates-table tr:active {
+            background: #f1f5f9;
+        }
+        
+        .candidate-name {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .score-cell {
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .status-hired {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-not-hired {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .status-not-qualified {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-pending {
+            background: #e0f2fe;
+            color: #0c4a6e;
+        }
+        
+        .date-cell {
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #64748b;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+        
+        .empty-state p {
+            margin-bottom: 20px;
+        }
+        
+        .empty-state .header-btn {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .empty-state .header-btn:hover {
+            background: #2563eb;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            background: #10b981;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            font-weight: 600;
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            max-width: 300px;
+        }
+        
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .notification.error {
+            background: #dc2626;
+        }
+        
+        .sort-indicator {
+            margin-left: 4px;
+            color: #9ca3af;
+            font-size: 0.7rem;
+        }
+        
+        .sort-indicator.active {
+            color: #3b82f6;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .header-controls {
+                position: static;
+                margin-bottom: 20px;
+                justify-content: center;
+            }
+            
+            .connection-status {
+                position: static;
+                justify-content: center;
+                margin-top: 20px;
+            }
+            
+            .section-header {
+                padding: 16px 20px;
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+            }
+            
+            .candidates-table th,
+            .candidates-table td {
+                padding: 12px 16px;
+                font-size: 0.8rem;
+            }
+            
+            .status-badge {
+                font-size: 0.7rem;
+                padding: 2px 8px;
+                min-width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-controls">
+            <a href="index.html" class="header-btn">← Back to Assessment</a>
+            <button class="header-btn" onclick="refreshData()">🔄 Refresh</button>
+        </div>
+        
+        <div class="connection-status">
+            <div class="status-dot" id="connectionStatus"></div>
+            <span id="connectionText">Connecting...</span>
+        </div>
+        
+        <div class="company-logo">BeContent</div>
+        <h1>Candidates Database</h1>
+        <p>All assessed candidates with their scores and final decisions</p>
+    </div>
+    
+    <div class="main-container">
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalCandidates">-</div>
+                <div class="stat-label">Total Candidates</div>
+            </div>
+            <div class="stat-card hired">
+                <div class="stat-value" id="hiredCount">-</div>
+                <div class="stat-label">Hired</div>
+            </div>
+            <div class="stat-card rejected">
+                <div class="stat-value" id="rejectedCount">-</div>
+                <div class="stat-label">Not Hired</div>
+            </div>
+            <div class="stat-card pending">
+                <div class="stat-value" id="pendingCount">-</div>
+                <div class="stat-label">Pending/Not Qualified</div>
+            </div>
+        </div>
+        
+        <!-- Candidates Table -->
+        <div class="candidates-section">
+            <div class="section-header">
+                <div>
+                    <h2>📋 All Candidates</h2>
+                    <p class="section-subtitle">Click on any candidate to view/edit their full assessment</p>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn btn-secondary" onclick="exportAllData()">📥 Export All</button>
+                    <a href="index.html" class="action-btn btn-primary">➕ New Assessment</a>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table class="candidates-table" id="candidatesTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('name')">
+                                Candidate Name
+                                <span class="sort-indicator" id="sort-name">↕</span>
+                            </th>
+                            <th onclick="sortTable('date')">
+                                Date
+                                <span class="sort-indicator" id="sort-date">↕</span>
+                            </th>
+                            <th>Interviewer</th>
+                            <th onclick="sortTable('culture')">
+                                Culture
+                                <span class="sort-indicator" id="sort-culture">↕</span>
+                            </th>
+                            <th onclick="sortTable('communication')">
+                                Communication
+                                <span class="sort-indicator" id="sort-communication">↕</span>
+                            </th>
+                            <th onclick="sortTable('content')">
+                                Content
+                                <span class="sort-indicator" id="sort-content">↕</span>
+                            </th>
+                            <th onclick="sortTable('combined')">
+                                Combined
+                                <span class="sort-indicator" id="sort-combined">↕</span>
+                            </th>
+                            <th onclick="sortTable('roleplay')">
+                                Role-play
+                                <span class="sort-indicator" id="sort-roleplay">↕</span>
+                            </th>
+                            <th onclick="sortTable('status')">
+                                Final Status
+                                <span class="sort-indicator" id="sort-status">↕</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="candidatesTableBody">
+                        <!-- Loading row will be inserted here -->
+                    </tbody>
+                </table>
+                
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <h3>No candidates assessed yet</h3>
+                    <p>Start by conducting your first assessment to see candidates appear here.</p>
+                    <a href="index.html" class="header-btn">➕ New Assessment</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification Toast -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Firebase SDK v9+ -->
+    <script type="module">
+        // Import Firebase functions
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyADvStNZePjINUQQtK_t0Cwh2AKQOvm9EQ",
+            authDomain: "becontent-assessment.firebaseapp.com",
+            databaseURL: "https://becontent-assessment-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "becontent-assessment",
+            storageBucket: "becontent-assessment.firebasestorage.app",
+            messagingSenderId: "656870358413",
+            appId: "1:656870358413:web:ae6b62a76ce682761ed1c4"
+        };
+
+        // Initialize Firebase
+        let app, database;
+        let isConnected = false;
+
+        try {
+            app = initializeApp(firebaseConfig);
+            database = getDatabase(app);
+            
+            // Make Firebase available globally
+            window.firebaseApp = app;
+            window.firebaseDatabase = database;
+            window.firebaseRef = ref;
+            window.firebaseOnValue = onValue;
+            
+            console.log('✅ Firebase initialized successfully');
+            setupConnection();
+        } catch (error) {
+            console.error('❌ Firebase initialization error:', error);
+            updateConnectionStatus(false, 'Database Error');
+        }
+        
+        function setupConnection() {
+            const connectedRef = ref(database, '.info/connected');
+            onValue(connectedRef, (snapshot) => {
+                isConnected = snapshot.val();
+                updateConnectionStatus(isConnected, isConnected ? 'Database Connected' : 'Database Disconnected');
+                if (isConnected) {
+                    loadCandidatesData();
+                }
+            });
+        }
+        
+        function updateConnectionStatus(connected, text) {
+            const statusDot = document.getElementById('connectionStatus');
+            const statusText = document.getElementById('connectionText');
+            
+            if (connected) {
+                statusDot.classList.add('connected');
+                statusText.textContent = text;
+            } else {
+                statusDot.classList.remove('connected');
+                statusText.textContent = text;
+            }
+        }
+        
+        function loadCandidatesData() {
+            console.log('🔍 Loading candidates from database...');
+            const candidatesRef = ref(database, 'candidates');
+            onValue(candidatesRef, (snapshot) => {
+                const candidates = snapshot.val();
+                if (candidates) {
+                    console.log('✅ Candidates data loaded:', Object.keys(candidates).length, 'candidates');
+                    displayCandidates(Object.values(candidates));
+                    updateStats(Object.values(candidates));
+                } else {
+                    console.log('ℹ️ No candidates found in database');
+                    showEmptyState();
+                }
+            }, (error) => {
+                console.error('❌ Error loading candidates:', error);
+                showNotification('Error loading candidates from database', 'error');
+                showEmptyState();
+            });
+        }
+        
+        window.loadCandidatesData = loadCandidatesData;
+    </script>
+
+    <script>
+        let candidatesData = [];
+        let currentSort = { field: 'date', direction: 'desc' };
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+        
+        function displayCandidates(candidates) {
+            const tableBody = document.getElementById('candidatesTableBody');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (!candidates || candidates.length === 0) {
+                showEmptyState();
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            candidatesData = candidates;
+            
+            // Sort candidates
+            sortCandidates(currentSort.field, currentSort.direction);
+            
+            tableBody.innerHTML = '';
+            
+            candidatesData.forEach(candidate => {
+                const row = document.createElement('tr');
+                row.onclick = () => editCandidate(candidate.candidateId);
+                
+                const formatDate = (dateString) => {
+                    if (!dateString) return '-';
+                    if (candidate.candidateInfo?.date) {
+                        return new Date(candidate.candidateInfo.date).toLocaleDateString();
+                    }
+                    return new Date(dateString).toLocaleDateString();
+                };
+                
+                const formatScore = (score) => {
+                    return score || score === 0 ? `${score}` : '-';
+                };
+                
+                const getStatusClass = (status) => {
+                    if (!status) return 'status-pending';
+                    if (status.includes('HIRED ✅')) return 'status-hired';
+                    if (status.includes('NOT HIRED')) return 'status-not-hired';
+                    if (status.includes('NOT QUALIFIED')) return 'status-not-qualified';
+                    return 'status-pending';
+                };
+                
+                row.innerHTML = `
+                    <td>
+                        <div class="candidate-name">${candidate.candidateInfo?.name || 'Unnamed Candidate'}</div>
+                    </td>
+                    <td class="date-cell">${formatDate(candidate.savedAt)}</td>
+                    <td>${candidate.candidateInfo?.interviewer || '-'}</td>
+                    <td class="score-cell">${formatScore(candidate.scores?.culture)}/100</td>
+                    <td class="score-cell">${formatScore(candidate.scores?.communication)}/100</td>
+                    <td class="score-cell">${formatScore(candidate.scores?.content)}/100</td>
+                    <td class="score-cell"><strong>${formatScore(candidate.scores?.combined)}/100</strong></td>
+                    <td class="score-cell">${formatScore(candidate.scores?.roleplay)}/100</td>
+                    <td>
+                        <span class="status-badge ${getStatusClass(candidate.scores?.finalStatus)}">
+                            ${candidate.scores?.finalStatus || 'PENDING'}
+                        </span>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            updateSortIndicators();
+        }
+        
+        function sortCandidates(field, direction) {
+            candidatesData.sort((a, b) => {
+                let aValue, bValue;
+                
+                switch (field) {
+                    case 'name':
+                        aValue = a.candidateInfo?.name || '';
+                        bValue = b.candidateInfo?.name || '';
+                        break;
+                    case 'date':
+                        aValue = new Date(a.savedAt || 0);
+                        bValue = new Date(b.savedAt || 0);
+                        break;
+                    case 'culture':
+                        aValue = a.scores?.culture || 0;
+                        bValue = b.scores?.culture || 0;
+                        break;
+                    case 'communication':
+                        aValue = a.scores?.communication || 0;
+                        bValue = b.scores?.communication || 0;
+                        break;
+                    case 'content':
+                        aValue = a.scores?.content || 0;
+                        bValue = b.scores?.content || 0;
+                        break;
+                    case 'combined':
+                        aValue = a.scores?.combined || 0;
+                        bValue = b.scores?.combined || 0;
+                        break;
+                    case 'roleplay':
+                        aValue = a.scores?.roleplay || 0;
+                        bValue = b.scores?.roleplay || 0;
+                        break;
+                    case 'status':
+                        aValue = a.scores?.finalStatus || '';
+                        bValue = b.scores?.finalStatus || '';
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (typeof aValue === 'string') {
+                    return direction === 'asc' ? 
+                        aValue.localeCompare(bValue) : 
+                        bValue.localeCompare(aValue);
+                } else {
+                    return direction === 'asc' ? 
+                        aValue - bValue : 
+                        bValue - aValue;
+                }
+            });
+        }
+        
+        function sortTable(field) {
+            if (currentSort.field === field) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.field = field;
+                currentSort.direction = 'desc';
+            }
+            
+            if (candidatesData.length > 0) {
+                displayCandidates(candidatesData);
+            }
+        }
+        
+        function updateSortIndicators() {
+            // Reset all indicators
+            document.querySelectorAll('.sort-indicator').forEach(indicator => {
+                indicator.textContent = '↕';
+                indicator.classList.remove('active');
+            });
+            
+            // Set active indicator
+            const activeIndicator = document.getElementById(`sort-${currentSort.field}`);
+            if (activeIndicator) {
+                activeIndicator.textContent = currentSort.direction === 'asc' ? '↑' : '↓';
+                activeIndicator.classList.add('active');
+            }
+        }
+        
+        function updateStats(candidates) {
+            const total = candidates.length;
+            let hired = 0;
+            let rejected = 0;
+            let pending = 0;
+            
+            candidates.forEach(candidate => {
+                const status = candidate.scores?.finalStatus || 'PENDING';
+                if (status.includes('HIRED ✅')) {
+                    hired++;
+                } else if (status.includes('NOT HIRED') || status.includes('NOT QUALIFIED')) {
+                    rejected++;
+                } else {
+                    pending++;
+                }
+            });
+            
+            document.getElementById('totalCandidates').textContent = total;
+            document.getElementById('hiredCount').textContent = hired;
+            document.getElementById('rejectedCount').textContent = rejected;
+            document.getElementById('pendingCount').textContent = pending;
+        }
+        
+        function showEmptyState() {
+            const tableBody = document.getElementById('candidatesTableBody');
+            const emptyState = document.getElementById('emptyState');
+            
+            tableBody.innerHTML = '';
+            emptyState.style.display = 'block';
+            
+            // Reset stats
+            document.getElementById('totalCandidates').textContent = '0';
+            document.getElementById('hiredCount').textContent = '0';
+            document.getElementById('rejectedCount').textContent = '0';
+            document.getElementById('pendingCount').textContent = '0';
+        }
+        
+        function showLoadingState() {
+            const tableBody = document.getElementById('candidatesTableBody');
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="9" style="text-align: center; padding: 40px;">
+                        <div class="loading-spinner"></div>
+                        Loading candidates...
+                    </td>
+                </tr>
+            `;
+        }
+        
+        function editCandidate(candidateId) {
+            if (!candidateId) {
+                showNotification('Candidate ID not found', 'error');
+                return;
+            }
+            
+            // Open assessment page with candidate ID parameter
+            const assessmentUrl = `index.html?candidateId=${candidateId}`;
+            window.open(assessmentUrl, '_blank');
+            showNotification('Opening candidate for editing...', 'success');
+        }
+        
+        function refreshData() {
+            showLoadingState();
+            if (window.loadCandidatesData) {
+                window.loadCandidatesData();
+                showNotification('Data refreshed successfully! 🔄');
+            } else {
+                showNotification('Cannot refresh - database not connected', 'error');
+            }
+        }
+        
+        function exportAllData() {
+            if (!candidatesData || candidatesData.length === 0) {
+                showNotification('No candidates to export', 'error');
+                return;
+            }
+            
+            const exportData = {
+                exportDate: new Date().toISOString(),
+                totalCandidates: candidatesData.length,
+                candidates: candidatesData
+            };
+            
+            const filename = `BeContent_All_Candidates_${new Date().toISOString().split('T')[0]}.json`;
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = filename;
+            link.click();
+            
+            showNotification('All candidates exported successfully! 📥');
+        }
+        
+        // Initialize the page
+        function init() {
+            console.log('🚀 Initializing Candidates Database...');
+            showLoadingState();
+            
+            // If Firebase is not available after 3 seconds, show error
+            setTimeout(() => {
+                if (!window.firebaseDatabase) {
+                    updateConnectionStatus(false, 'Database Not Available');
+                    showEmptyState();
+                    showNotification('Cannot connect to database', 'error');
+                }
+            }, 3000);
+        }
+        
+        function updateConnectionStatus(connected, text) {
+            const statusDot = document.getElementById('connectionStatus');
+            const statusText = document.getElementById('connectionText');
+            
+            if (connected) {
+                statusDot.classList.add('connected');
+                statusText.textContent = text;
+            } else {
+                statusDot.classList.remove('connected');
+                statusText.textContent = text;
+            }
+        }
+        
+        // Start the application
+        init();
+    </script>
+</body>
+</html>
