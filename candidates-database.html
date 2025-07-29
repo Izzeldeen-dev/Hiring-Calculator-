@@ -836,13 +836,20 @@
         function editCandidate(candidateId) {
             if (!candidateId) {
                 showNotification('Candidate ID not found', 'error');
+                console.log('❌ No candidate ID provided');
                 return;
             }
             
+            console.log('📝 Opening candidate for editing:', candidateId);
+            
             // Open assessment page with candidate ID parameter
             const assessmentUrl = `index.html?candidateId=${candidateId}`;
-            window.open(assessmentUrl, '_blank');
-            showNotification('Opening candidate for editing...', 'success');
+            console.log('🔗 Opening URL:', assessmentUrl);
+            
+            // Open in same tab for easier debugging
+            window.location.href = assessmentUrl;
+            
+            showNotification('Loading candidate for editing...', 'success');
         }
         
         function refreshData() {
