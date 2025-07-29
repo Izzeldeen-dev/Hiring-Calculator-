@@ -910,6 +910,7 @@
                 <div class="header-controls">
                     <a href="candidates-database.html" class="header-btn">👥 View All Candidates</a>
                     <button class="header-btn" onclick="newAssessment()">📄 New Assessment</button>
+                    <button class="header-btn" onclick="debugInfo()" style="background: rgba(255,255,255,0.3);">🔍 Debug</button>
                 </div>
                 
                 <div class="save-status">
@@ -1510,8 +1511,29 @@
             window.open('candidates-database.html', '_blank');
         }
 
+        function debugInfo() {
+            console.log('🔍 DEBUG INFO:');
+            console.log('Current URL:', window.location.href);
+            console.log('URL Parameters:', new URLSearchParams(window.location.search));
+            console.log('Candidate ID:', new URLSearchParams(window.location.search).get('candidateId'));
+            console.log('Firebase available:', !!window.firebaseDatabase);
+            console.log('Current candidate ID:', currentCandidateId);
+            console.log('Assessment data:', assessmentData);
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const candidateId = urlParams.get('candidateId');
+            
+            if (candidateId) {
+                alert(`DEBUG:\nURL: ${window.location.href}\nCandidate ID: ${candidateId}\nFirebase: ${!!window.firebaseDatabase}\nCurrent ID: ${currentCandidateId}`);
+            } else {
+                alert('No candidate ID found in URL');
+            }
+        }
+
         function newAssessment() {
             if (confirm('Start a new assessment? This will clear all current data.')) {
+                // Clear URL parameters
+                window.history.replaceState({}, document.title, window.location.pathname);
                 window.location.reload();
             }
         }
@@ -1520,8 +1542,35 @@
             const urlParams = new URLSearchParams(window.location.search);
             const candidateId = urlParams.get('candidateId');
             
+            console.log('🔗 Current URL:', window.location.href);
+            console.log('📋 Candidate ID from URL:', candidateId);
+            
             if (candidateId) {
-                loadCandidateFromDatabase(candidateId);
+                console.log('✅ Found candidate ID, attempting to load...');
+                showNotification(`Loading candidate: ${candidateId}`, 'success');
+                
+                // Wait for Firebase to be ready
+                if (window.firebaseDatabase) {
+                    loadCandidateFromDatabase(candidateId);
+                } else {
+                    console.log('⏳ Firebase not ready, waiting...');
+                    // Wait for Firebase and try again
+                    let attempts = 0;
+                    const waitForFirebase = setInterval(() => {
+                        attempts++;
+                        if (window.firebaseDatabase) {
+                            console.log('✅ Firebase ready after', attempts, 'attempts');
+                            clearInterval(waitForFirebase);
+                            loadCandidateFromDatabase(candidateId);
+                        } else if (attempts > 10) {
+                            console.log('❌ Firebase timeout after 10 attempts');
+                            clearInterval(waitForFirebase);
+                            showNotification('Database connection failed', 'error');
+                        }
+                    }, 1000);
+                }
+            } else {
+                console.log('ℹ️ No candidate ID in URL - starting new assessment');
             }
         }
 
@@ -1531,15 +1580,28 @@
                 return;
             }
             
+            console.log('🔍 Loading candidate from database:', candidateId);
+            document.getElementById('saveStatus').textContent = 'Loading candidate...';
+            
             currentCandidateId = candidateId;
             const candidateRef = window.firebaseRef(window.firebaseDatabase, `candidates/${candidateId}`);
             
+            // Get data once
             window.firebaseOnValue(candidateRef, (snapshot) => {
                 const candidateData = snapshot.val();
+                console.log('📋 Candidate data received:', candidateData);
+                
                 if (candidateData) {
                     loadAllData(candidateData);
-                    showNotification(`Loaded candidate: ${candidateData.candidateInfo.name}`, 'success');
-                    document.getElementById('saveStatus').textContent = 'Editing existing candidate';
+                    showNotification(`✅ Loaded: ${candidateData.candidateInfo?.name || 'Candidate'}`, 'success');
+                    document.getElementById('saveStatus').textContent = `Editing: ${candidateData.candidateInfo?.name || 'Candidate'}`;
+                    
+                    // Change header to show we're editing
+                    const headerElement = document.querySelector('.header h1');
+                    headerElement.textContent = `Editing: ${candidateData.candidateInfo?.name || 'Candidate'}`;
+                } else {
+                    showNotification('Candidate not found in database', 'error');
+                    document.getElementById('saveStatus').textContent = 'Candidate not found';
                 }
             });
         }
@@ -1662,16 +1724,27 @@
         }
         
         function loadAllData(data) {
-            if (!data) return;
+            if (!data) {
+                console.log('❌ No data to load');
+                return;
+            }
             
+            console.log('📥 Loading all candidate data:', data);
+            
+            // Load candidate info
             if (data.candidateInfo) {
+                console.log('📝 Loading candidate info:', data.candidateInfo);
                 document.getElementById('candidateName').value = data.candidateInfo.name || '';
                 document.getElementById('interviewDate').value = data.candidateInfo.date || '';
                 document.getElementById('interviewerName').value = data.candidateInfo.interviewer || '';
             }
             
-            if (data.selectedQuestions) {
+            // Load selected knowledge questions first
+            if (data.selectedQuestions && data.selectedQuestions.length > 0) {
+                console.log('❓ Loading selected questions:', data.selectedQuestions);
                 assessmentData.selectedQuestions = data.selectedQuestions;
+                
+                // Check the checkboxes
                 data.selectedQuestions.forEach(questionId => {
                     const checkbox = document.querySelector(`[data-question="${questionId}"]`);
                     if (checkbox) {
@@ -1679,44 +1752,67 @@
                         checkbox.closest('label').classList.add('selected');
                     }
                 });
+                
+                // Update counter and generate questions
                 document.getElementById('selectedCount').textContent = data.selectedQuestions.length;
                 generateKnowledgeQuestions();
             }
             
+            // Load culture scores
             if (data.cultureScores) {
+                console.log('🏛️ Loading culture scores:', data.cultureScores);
                 Object.keys(data.cultureScores).forEach(component => {
                     const select = document.querySelector(`[data-component="${component}"]`);
-                    if (select) select.value = data.cultureScores[component];
+                    if (select && data.cultureScores[component]) {
+                        select.value = data.cultureScores[component];
+                        console.log(`Set ${component} to ${data.cultureScores[component]}`);
+                    }
                 });
             }
             
+            // Load STAR scores
             if (data.starScores) {
+                console.log('⭐ Loading STAR scores:', data.starScores);
                 Object.keys(data.starScores).forEach(key => {
                     const [question, component] = key.split('_');
                     const questionNum = question.replace('q', '');
                     const input = document.querySelector(`[data-question="${questionNum}"][data-component="${component}"]`);
-                    if (input) input.value = data.starScores[key];
+                    if (input && data.starScores[key]) {
+                        input.value = data.starScores[key];
+                        console.log(`Set STAR ${key} to ${data.starScores[key]}`);
+                    }
                 });
             }
             
+            // Load knowledge scores (with delay to ensure questions are generated)
             if (data.knowledgeScores) {
+                console.log('🧠 Loading knowledge scores:', data.knowledgeScores);
                 setTimeout(() => {
                     Object.keys(data.knowledgeScores).forEach(key => {
                         const questionNum = key.replace('q', '');
                         const select = document.querySelector(`.knowledge-score-select[data-question="${questionNum}"]`);
-                        if (select) select.value = data.knowledgeScores[key];
+                        if (select && data.knowledgeScores[key]) {
+                            select.value = data.knowledgeScores[key];
+                            console.log(`Set knowledge ${key} to ${data.knowledgeScores[key]}`);
+                        }
                     });
                     calculateScores();
-                }, 100);
+                }, 500);
             }
             
+            // Load roleplay scores
             if (data.roleplayScores) {
+                console.log('🎭 Loading roleplay scores:', data.roleplayScores);
                 document.getElementById('questionQuality').value = data.roleplayScores.questionQuality || '';
                 document.getElementById('followupSkills').value = data.roleplayScores.followupSkills || '';
                 document.getElementById('objectionHandling').value = data.roleplayScores.objectionHandling || '';
             }
             
-            calculateScores();
+            // Calculate scores after everything is loaded
+            setTimeout(() => {
+                calculateScores();
+                console.log('✅ All candidate data loaded and scores calculated');
+            }, 600);
         }
         
         function exportData() {
@@ -2032,10 +2128,12 @@
         // Initialize the application
         function init() {
             console.log('🚀 Initializing BeContent Assessment - Simplified Version');
+            console.log('🔗 Current URL:', window.location.href);
             
             try {
                 generateStarQuestions();
                 
+                // Check for candidate ID in URL FIRST
                 checkForCandidateIdInURL();
                 
                 const checkboxes = document.querySelectorAll('.question-checkbox');
@@ -2055,10 +2153,7 @@
                     window.autoSaveTimeout = setTimeout(() => {
                         const candidateName = document.getElementById('candidateName').value.trim();
                         if (candidateName) {
-                            document.getElementById('saveStatus').textContent = 'Saving...';
-                            setTimeout(() => {
-                                document.getElementById('saveStatus').textContent = 'Auto-save enabled';
-                            }, 1000);
+                            saveCandidateToDatabase();
                         }
                     }, 2000);
                 });
@@ -2067,13 +2162,20 @@
                     if (e.target.classList.contains('knowledge-score-select') || 
                         e.target.classList.contains('culture-score-select')) {
                         calculateScores();
+                        // Auto-save on score changes
+                        setTimeout(() => {
+                            const candidateName = document.getElementById('candidateName').value.trim();
+                            if (candidateName) {
+                                saveCandidateToDatabase();
+                            }
+                        }, 1000);
                     }
                 });
                 
                 calculateScores();
                 
                 console.log('✅ BeContent Assessment initialized successfully!');
-                showNotification('Assessment ready! Enter candidate name to begin. 🚀');
+                showNotification('Assessment ready! 🚀');
                 
             } catch (error) {
                 console.error('❌ Error during initialization:', error);
