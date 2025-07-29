@@ -1312,6 +1312,7 @@
 
         // Global state
         let currentCandidateId = null;
+        let hasUnsavedChanges = false;
         let assessmentData = {
             candidateInfo: {},
             cultureScores: {},
@@ -1638,10 +1639,37 @@
             });
         }
 
+        function markAsChanged() {
+            if (!hasUnsavedChanges) {
+                hasUnsavedChanges = true;
+                document.getElementById('saveStatus').textContent = 'Unsaved changes...';
+                document.querySelector('.status-dot').style.background = '#f59e0b'; // Orange dot
+                console.log('📝 Form marked as changed - auto-save will trigger');
+            }
+        }
+
+        function markAsSaved() {
+            hasUnsavedChanges = false;
+            document.getElementById('saveStatus').textContent = 'All changes saved ✓';
+            document.querySelector('.status-dot').style.background = '#10b981'; // Green dot
+            
+            // Reset to "Auto-save enabled" after 3 seconds
+            setTimeout(() => {
+                if (!hasUnsavedChanges) {
+                    document.getElementById('saveStatus').textContent = 'Auto-save enabled';
+                }
+            }, 3000);
+        }
+
         // Database functions
         function saveCandidateToDatabase() {
             if (!window.firebaseDatabase) {
                 console.log('❌ Database not available');
+                return;
+            }
+            
+            if (!hasUnsavedChanges) {
+                console.log('ℹ️ No unsaved changes - skipping save');
                 return;
             }
             
@@ -1651,6 +1679,9 @@
                 console.log('ℹ️ No candidate name - skipping save');
                 return;
             }
+            
+            console.log('💾 Saving candidate to database...');
+            document.getElementById('saveStatus').textContent = 'Saving...';
             
             if (!currentCandidateId) {
                 currentCandidateId = Date.now().toString() + '_' + Math.random().toString(36).substr(2, 5);
@@ -1707,14 +1738,11 @@
                 window.firebaseSet(candidateRef, candidateRecord);
                 console.log('✅ Candidate saved to database');
                 showNotification(`${assessmentData.candidateInfo.name} saved successfully! 💾`);
-                document.getElementById('saveStatus').textContent = 'Assessment saved';
-                
-                setTimeout(() => {
-                    document.getElementById('saveStatus').textContent = 'Auto-save enabled';
-                }, 3000);
+                markAsSaved();
             } catch (error) {
                 console.error('❌ Error saving candidate:', error);
                 showNotification('Error saving assessment', 'error');
+                document.getElementById('saveStatus').textContent = 'Save failed ❌';
             }
         }
 
@@ -1867,6 +1895,9 @@
                         setTimeout(() => {
                             calculateScores();
                             console.log('✅ All candidate data loaded and scores calculated');
+                            // Don't mark as changed when loading existing data
+                            hasUnsavedChanges = false;
+                            document.getElementById('saveStatus').textContent = 'Candidate data loaded';
                         }, 100);
                     }, 800);
                 }
@@ -1875,6 +1906,9 @@
                 setTimeout(() => {
                     calculateScores();
                     console.log('✅ Candidate data loaded (no knowledge questions)');
+                    // Don't mark as changed when loading existing data
+                    hasUnsavedChanges = false;
+                    document.getElementById('saveStatus').textContent = 'Candidate data loaded';
                 }, 200);
             }
         }
@@ -2037,11 +2071,20 @@
             assessmentData.selectedQuestions = selectedQuestions;
             document.getElementById('selectedCount').textContent = selectedQuestions.length;
             
+            // Mark as changed when questions are selected
+            markAsChanged();
+            
             generateKnowledgeQuestions();
             
             // Auto-save when knowledge questions change
             setTimeout(() => {
                 calculateScores();
+                if (hasUnsavedChanges) {
+                    const candidateName = document.getElementById('candidateName').value.trim();
+                    if (candidateName) {
+                        setTimeout(() => saveCandidateToDatabase(), 1000);
+                    }
+                }
             }, 100);
         }
 
@@ -2208,29 +2251,40 @@
                 // Set today's date as default
                 document.getElementById('interviewDate').value = new Date().toISOString().split('T')[0];
                 
-                // Add event listeners for auto-saving
+                // Add event listeners for change tracking and smart auto-saving
                 document.addEventListener('input', (e) => {
+                    // Mark as changed when user types
+                    markAsChanged();
                     calculateScores();
                     
-                    // Auto-save after 2 seconds of no input
+                    // Auto-save after 3 seconds of no typing (only if there are changes)
                     clearTimeout(window.autoSaveTimeout);
                     window.autoSaveTimeout = setTimeout(() => {
-                        const candidateName = document.getElementById('candidateName').value.trim();
-                        if (candidateName) {
-                            saveCandidateToDatabase();
-                        }
-                    }, 2000);
-                });
-                
-                document.addEventListener('change', (e) => {
-                    if (e.target.classList.contains('knowledge-score-select') || 
-                        e.target.classList.contains('culture-score-select')) {
-                        calculateScores();
-                        // Auto-save on score changes
-                        setTimeout(() => {
+                        if (hasUnsavedChanges) {
                             const candidateName = document.getElementById('candidateName').value.trim();
                             if (candidateName) {
                                 saveCandidateToDatabase();
+                            }
+                        }
+                    }, 3000);
+                });
+                
+                document.addEventListener('change', (e) => {
+                    // Mark as changed when dropdowns/checkboxes change
+                    markAsChanged();
+                    
+                    if (e.target.classList.contains('knowledge-score-select') || 
+                        e.target.classList.contains('culture-score-select') ||
+                        e.target.classList.contains('question-checkbox')) {
+                        calculateScores();
+                        
+                        // Auto-save immediately for score changes (only if there are changes)
+                        setTimeout(() => {
+                            if (hasUnsavedChanges) {
+                                const candidateName = document.getElementById('candidateName').value.trim();
+                                if (candidateName) {
+                                    saveCandidateToDatabase();
+                                }
                             }
                         }, 1000);
                     }
